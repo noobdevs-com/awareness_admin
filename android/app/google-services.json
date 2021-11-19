@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1089124231166",
+    "project_id": "awareness-a5c48",
+    "storage_bucket": "awareness-a5c48.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1089124231166:android:c2efbc1a967274b10e82af",
+        "android_client_info": {
+          "package_name": "com.noobdevs.awareness"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1089124231166-95gekenbd31d0qi3f74kop38494a14eb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.noobdevs.awareness",
+            "certificate_hash": "fe89ca9e0a4760a3b2ced9408e03192fcef7b8ce"
+          }
+        },
+        {
+          "client_id": "1089124231166-taj4uffad3n35hdigv55bh4o2nn6cc4a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIimwbg3TMmChkD_O3tAZYxv4t_42hjgc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1089124231166-taj4uffad3n35hdigv55bh4o2nn6cc4a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
