@@ -32,6 +32,7 @@ dependencies:
   image_picker: ^0.8.4+4
   flutter_image_slideshow: ^0.1.2
   image_cropper: ^1.4.1
+  url_launcher: ^6.0.15
 
   # Server
   http: ^0.13.4
