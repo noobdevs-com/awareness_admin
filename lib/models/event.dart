@@ -1,14 +1,18 @@
-import 'package:awareness_admin/constants/constants.dart';
-
 class Event {
-  String title;
-  EventStatus eventStatus;
-  DateTime eventCreatedAt;
-  DateTime eventAssignedAt;
+  String? title;
+  String? description;
+  String? status;
+  String? did;
+  DateTime? createdAt;
+  DateTime? startTime;
+  List images = [];
 
-  Event(
-      {required this.eventStatus,
-      required this.title,
-      required this.eventAssignedAt,
-      required this.eventCreatedAt});
+  Event({
+    this.description,
+    this.title,
+    this.status,
+    this.startTime,
+    this.did,
+    this.images = const [],
+  });
 }

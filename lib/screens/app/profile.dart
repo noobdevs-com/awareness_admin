@@ -1,5 +1,4 @@
 import 'package:awareness_admin/screens/app/add_college.dart';
-import 'package:awareness_admin/screens/app/add_event.dart';
 import 'package:awareness_admin/screens/auth/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -12,14 +11,14 @@ class Profile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   elevation: 0,
-      //   backgroundColor: Colors.white,
-      //   title: const Text(
-      //     'Profile',
-      //     style: TextStyle(color: Colors.black),
-      //   ),
-      // ),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Profile',
+          style: TextStyle(color: Colors.black),
+        ),
+      ),
       body: Column(
         children: [
           Padding(
@@ -30,21 +29,6 @@ class Profile extends StatelessWidget {
                   Get.to(() => const AddCollege());
                 },
                 title: const Text('Add College'),
-                trailing: const Icon(
-                  Icons.arrow_right,
-                  size: 26,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Card(
-              child: ListTile(
-                onTap: () {
-                  Get.to(() => const AddEvent());
-                },
-                title: const Text('Create Event'),
                 trailing: const Icon(
                   Icons.arrow_right,
                   size: 26,

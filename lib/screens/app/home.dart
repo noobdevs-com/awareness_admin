@@ -1,8 +1,8 @@
+import 'package:awareness_admin/models/event.dart';
+import 'package:awareness_admin/screens/app/event_details.dart';
 import 'package:awareness_admin/screens/app/profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:awareness_admin/constants/constants.dart';
-import 'package:awareness_admin/models/event.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -16,7 +16,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
   late PageController _pageController;
-  List events = [];
+  List<Event> events = [];
   String filterKey = 'All';
   bool loading = false;
 
@@ -37,10 +37,16 @@ class _HomeState extends State<Home> {
     });
     try {
       QuerySnapshot ref =
-          await FirebaseFirestore.instance.collection('hotels').get();
+          await FirebaseFirestore.instance.collection('events').get();
       events.clear();
       for (var i = 0; i < ref.docs.length; i++) {
-        events.add(ref.docs[0].data());
+        Event event = Event(
+          did: ref.docs[i].id,
+          title: ref.docs[i]["title"],
+          status: ref.docs[i]["status"],
+          startTime: DateTime.parse(ref.docs[i]["start_time"]),
+        );
+        events.add(event);
       }
     } catch (e) {
       Get.snackbar("oops...", "Unable to get events");
@@ -56,14 +62,20 @@ class _HomeState extends State<Home> {
     });
     try {
       QuerySnapshot ref = await FirebaseFirestore.instance
-          .collection('hotels')
+          .collection('events')
           .where('status', isEqualTo: status)
           .get();
       events.clear();
 
       setState(() {
         for (var i = 0; i < ref.docs.length; i++) {
-          events.add(ref.docs[0].data());
+          Event event = Event(
+            did: ref.docs[i].id,
+            title: ref.docs[i]["status"],
+            status: ref.docs[i]["status"],
+            startTime: DateTime.parse(ref.docs[i]["start_time"]),
+          );
+          events.add(event);
         }
       });
     } catch (e) {
@@ -206,6 +218,9 @@ class _HomeState extends State<Home> {
                                     elevation: 1,
                                     shadowColor: Colors.grey[300],
                                     child: ListTile(
+                                      onTap: () => Get.to(() => EventDetails(
+                                            eventId: events[index].did!,
+                                          )),
                                       trailing: SizedBox(
                                         width: 60,
                                         child: Center(
@@ -225,7 +240,7 @@ class _HomeState extends State<Home> {
                                         ),
                                       ),
                                       title: Text(
-                                        events[index]["title"],
+                                        events[index].title!,
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -236,21 +251,7 @@ class _HomeState extends State<Home> {
                                           const SizedBox(
                                             height: 2,
                                           ),
-                                          Text(events[index]["eventStatus"] ==
-                                                  "Approved"
-                                              ? 'Approved'
-                                              : events[index]["eventStatus"] ==
-                                                      "Completed"
-                                                  ? '"Completed"'
-                                                  : events[index]
-                                                              ["eventStatus"] ==
-                                                          "Pending"
-                                                      ? 'Pending'
-                                                      : events[index][
-                                                                  "eventStatus"] ==
-                                                              "Rejected"
-                                                          ? 'Rejected'
-                                                          : 'Requested'),
+                                          Text(events[index].status!),
                                           const SizedBox(
                                             height: 3,
                                           ),
@@ -258,8 +259,7 @@ class _HomeState extends State<Home> {
                                             children: [
                                               Text(
                                                 DateFormat.jm().format(
-                                                  (DateTime.parse(events[index]
-                                                      ["start_time"])),
+                                                  (events[index].startTime!),
                                                 ),
                                                 style: TextStyle(
                                                     color: Colors.blue
@@ -272,9 +272,7 @@ class _HomeState extends State<Home> {
                                               ),
                                               Text(
                                                 DateFormat.yMMMMd().format(
-                                                    (DateTime.parse(
-                                                        events[index]
-                                                            ["start_time"]))),
+                                                    (events[index].startTime!)),
                                               ),
                                             ],
                                           )
