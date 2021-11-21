@@ -1,7 +1,9 @@
 import 'package:awareness_admin/screens/app/profile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:awareness_admin/constants/constants.dart';
 import 'package:awareness_admin/models/event.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
@@ -14,6 +16,9 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
   late PageController _pageController;
+  List events = [];
+  String filterKey = 'All';
+  bool loading = false;
 
   void onPageChanged(int page) {
     setState(() {
@@ -26,10 +31,54 @@ class _HomeState extends State<Home> {
         duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
   }
 
+  Future<void> getEvents() async {
+    setState(() {
+      loading = true;
+    });
+    try {
+      QuerySnapshot ref =
+          await FirebaseFirestore.instance.collection('hotels').get();
+      events.clear();
+      for (var i = 0; i < ref.docs.length; i++) {
+        events.add(ref.docs[0].data());
+      }
+    } catch (e) {
+      Get.snackbar("oops...", "Unable to get events");
+    }
+    setState(() {
+      loading = false;
+    });
+  }
+
+  Future<void> filterEvents(String status) async {
+    setState(() {
+      loading = true;
+    });
+    try {
+      QuerySnapshot ref = await FirebaseFirestore.instance
+          .collection('hotels')
+          .where('status', isEqualTo: status)
+          .get();
+      events.clear();
+
+      setState(() {
+        for (var i = 0; i < ref.docs.length; i++) {
+          events.add(ref.docs[0].data());
+        }
+      });
+    } catch (e) {
+      Get.snackbar("oops...", "Unable to get events");
+    }
+    setState(() {
+      loading = false;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _selectedIndex);
+    getEvents();
   }
 
   @override
@@ -37,14 +86,6 @@ class _HomeState extends State<Home> {
     super.dispose();
     _pageController.dispose();
   }
-
-  List<Event> events = [
-    Event(
-        eventStatus: EventStatus.pending,
-        title: 'Hello Dhostu',
-        eventAssignedAt: DateTime(2021, 07, 24),
-        eventCreatedAt: DateTime(2021, 07, 01))
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -112,75 +153,139 @@ class _HomeState extends State<Home> {
             onPageChanged: onPageChanged,
             controller: _pageController,
             children: [
-              ListView.builder(itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 3),
-                  child: Card(
-                      elevation: 1,
-                      shadowColor: Colors.grey[300],
-                      child: ListTile(
-                        trailing: SizedBox(
-                          width: 60,
-                          child: Center(
-                            child: Row(
-                              children: const [
-                                Text(
-                                  'View',
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                                Icon(
-                                  Icons.arrow_right,
-                                  color: Colors.grey,
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                        title: Text(
-                          events[0].title,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(
-                              height: 2,
-                            ),
-                            Text(events[0].eventStatus == EventStatus.approved
-                                ? 'Approved'
-                                : events[0].eventStatus == EventStatus.completed
-                                    ? 'Completed'
-                                    : events[0].eventStatus ==
-                                            EventStatus.pending
-                                        ? 'Pending'
-                                        : events[0].eventStatus ==
-                                                EventStatus.rejected
-                                            ? 'Rejected'
-                                            : 'Requested'),
-                            const SizedBox(
-                              height: 3,
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  '${DateFormat.jm().format((events[0].eventAssignedAt))}',
-                                  style: TextStyle(
-                                      color: Colors.blue.withOpacity(0.7),
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 17),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                Text(
-                                    '${DateFormat.yMMMMd().format((events[0].eventAssignedAt))}'),
-                              ],
-                            )
-                          ],
-                        ),
-                      )),
-                );
-              }),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Filter
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: DropdownButton<String>(
+                      value: filterKey,
+                      items: <String>[
+                        'All',
+                        'Requested',
+                        'Rejected',
+                        'Approved',
+                        'Completed'
+                      ].map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (String? value) {
+                        setState(() {
+                          filterKey = value ?? 'All';
+                        });
+                        if (filterKey == 'All') {
+                          getEvents();
+                        } else {
+                          filterEvents(filterKey);
+                        }
+                      },
+                    ),
+                  ),
+
+                  // Loader
+                  loading == true
+                      ? const LinearProgressIndicator(
+                          backgroundColor: Colors.white,
+                        )
+                      : const SizedBox(height: 5),
+
+                  // Event List
+                  Expanded(
+                    child: events.isEmpty
+                        ? const Center(child: Text('No events found.'))
+                        : ListView.builder(
+                            itemCount: events.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 3),
+                                child: Card(
+                                    elevation: 1,
+                                    shadowColor: Colors.grey[300],
+                                    child: ListTile(
+                                      trailing: SizedBox(
+                                        width: 60,
+                                        child: Center(
+                                          child: Row(
+                                            children: const [
+                                              Text(
+                                                'View',
+                                                style: TextStyle(
+                                                    color: Colors.grey),
+                                              ),
+                                              Icon(
+                                                Icons.arrow_right,
+                                                color: Colors.grey,
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      title: Text(
+                                        events[index]["title"],
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(
+                                            height: 2,
+                                          ),
+                                          Text(events[index]["eventStatus"] ==
+                                                  "Approved"
+                                              ? 'Approved'
+                                              : events[index]["eventStatus"] ==
+                                                      "Completed"
+                                                  ? '"Completed"'
+                                                  : events[index]
+                                                              ["eventStatus"] ==
+                                                          "Pending"
+                                                      ? 'Pending'
+                                                      : events[index][
+                                                                  "eventStatus"] ==
+                                                              "Rejected"
+                                                          ? 'Rejected'
+                                                          : 'Requested'),
+                                          const SizedBox(
+                                            height: 3,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                DateFormat.jm().format(
+                                                  (DateTime.parse(events[index]
+                                                      ["start_time"])),
+                                                ),
+                                                style: TextStyle(
+                                                    color: Colors.blue
+                                                        .withOpacity(0.7),
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 17),
+                                              ),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                DateFormat.yMMMMd().format(
+                                                    (DateTime.parse(
+                                                        events[index]
+                                                            ["start_time"]))),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    )),
+                              );
+                            }),
+                  ),
+                ],
+              ),
               Text('Hello'),
               const Profile()
             ]),
