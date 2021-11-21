@@ -48,7 +48,7 @@ class _AddCollegeState extends State<AddCollege> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   const Padding(
@@ -147,6 +147,7 @@ class _AddCollegeState extends State<AddCollege> {
               padding: const EdgeInsets.only(bottom: 15),
               child: ElevatedButton.icon(
                 onPressed: () async {
+                  if (loading == true) return;
                   if (usernameTextEditingController.text == "" ||
                       phoneTextEditingController.text == "") {
                     return Get.snackbar("oops", "please fill all the fields.");

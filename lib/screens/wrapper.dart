@@ -1,5 +1,4 @@
 import 'package:awareness_admin/screens/auth/login.dart';
-import 'package:awareness_admin/screens/auth/user_details.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
