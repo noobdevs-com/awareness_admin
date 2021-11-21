@@ -41,11 +41,16 @@ class _AddCollegeState extends State<AddCollege> {
           Column(
             children: [
               loading == true
-                  ? const LinearProgressIndicator()
+                  ? const LinearProgressIndicator(
+                      backgroundColor: Colors.white,
+                    )
                   : const SizedBox(height: 5),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(
+                    height: 10,
+                  ),
                   const Padding(
                     padding: EdgeInsets.only(left: 30),
                     child: Text(
