@@ -1,4 +1,5 @@
 import 'package:awareness_admin/screens/auth/login.dart';
+import 'package:awareness_admin/screens/auth/user_details.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ class Wrapper extends StatelessWidget {
   const Wrapper({Key? key}) : super(key: key);
 
   Future<void> checkStatus() async {
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 3));
     if (FirebaseAuth.instance.currentUser != null) {
       Get.to(() => const Home());
     } else {

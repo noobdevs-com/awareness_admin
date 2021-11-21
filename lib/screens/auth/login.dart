@@ -1,5 +1,6 @@
 import 'package:awareness_admin/screens/auth/otp.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -20,11 +21,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool loading = false;
 
   Future<void> verifyUser(int phoneNumber) async {
-    setState(() {
-      loading == true;
-    });
     final data = await http
-        .get(Uri.parse('https://womena.herokuapp.com/users/$phoneNumber'));
+        .get(Uri.parse('https://womena.herokuapp.com/admin/$phoneNumber'));
     print(data.body);
     print(data.statusCode);
     if (data.statusCode == 404) {
@@ -136,11 +134,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   TextFormField(
                     controller: phoneNumberController,
-                    textAlign: TextAlign.center,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
                         suffixIcon: Icon(Icons.phone),
-                        prefixText: '+91',
+                        prefixText: '   +91 ',
                         labelText: 'Ph No.',
                         hintText: 'Enter Your Phone Number',
                         border: OutlineInputBorder(
@@ -154,10 +151,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: MediaQuery.of(context).size.width,
                     child: ElevatedButton.icon(
                         onPressed: () {
+                          setState(() {
+                            loading == true;
+                          });
                           verifyUser(int.parse(phoneNumberController.text));
                         },
-                        icon: const Icon(Icons.person),
-                        label: const Text('Login'),
+                        icon: loading == true
+                            ? Icon(Icons.circle)
+                            : const Icon(Icons.person),
+                        label: loading == true
+                            ? CupertinoActivityIndicator()
+                            : const Text('Login'),
                         style: ElevatedButton.styleFrom(
                             shape: const RoundedRectangleBorder(
                                 borderRadius:

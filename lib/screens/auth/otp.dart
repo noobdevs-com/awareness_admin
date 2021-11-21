@@ -1,12 +1,9 @@
 import 'dart:async';
 
 import 'package:awareness_admin/screens/app/home.dart';
-import 'package:awareness_admin/screens/app/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:pin_input_text_field/pin_input_text_field.dart';
 import 'package:awareness_admin/services/fcm.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -119,9 +116,8 @@ class _OTPScreenState extends State<OTPScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leadingWidth: 10,
         elevation: 0,
-        title: IconButton(
+        leading: IconButton(
             onPressed: () {
               Get.back();
             },
@@ -144,95 +140,101 @@ class _OTPScreenState extends State<OTPScreen> {
                 : Container(
                     height: 5,
                   ),
-            SizedBox(
-              height: 500,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text('OTP Has Been Sent To',
-                          style: TextStyle(fontSize: 25)),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Text('+91  ${widget.number}',
-                          style: const TextStyle(fontSize: 20))
-                    ],
-                  ),
-                  const Text(
-                      'Please Enter The 6 - Digit Code Sent To Your Number',
-                      style: TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width - 75,
-                    height: 40,
-                    child: PinInputTextField(
-                      cursor: Cursor(color: Colors.black),
-                      decoration: const BoxLooseDecoration(
-                          bgColorBuilder: FixedColorBuilder(Colors.white24),
-                          strokeColorBuilder:
-                              FixedColorBuilder(Color(0xFFCFB840))),
-                      pinLength: 6,
-                      controller: otpController,
-                      textInputAction: TextInputAction.go,
-                      keyboardType: TextInputType.number,
+            Column(
+              children: [
+                Column(
+                  children: [
+                    const SizedBox(
+                      height: 30,
                     ),
+                    const Text('OTP Has Been Sent To',
+                        style: TextStyle(
+                            fontSize: 21, fontWeight: FontWeight.bold)),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text('+91  ${widget.number}',
+                        style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey))
+                  ],
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 75,
+                  height: 40,
+                  child: PinInputTextField(
+                    cursor: Cursor(color: Colors.black),
+                    decoration: const BoxLooseDecoration(
+                        bgColorBuilder: FixedColorBuilder(Colors.white24),
+                        strokeColorBuilder: FixedColorBuilder(Colors.blue)),
+                    pinLength: 6,
+                    controller: otpController,
+                    textInputAction: TextInputAction.go,
+                    keyboardType: TextInputType.number,
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: ElevatedButton.icon(
+                ),
+                const SizedBox(
+                  height: 50,
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 75,
+                  child: ElevatedButton.icon(
+                      onPressed: () {
+                        verifyOtp();
+                      },
+                      icon: const Icon(Icons.verified_user),
+                      label: const Text('Verify OTP'),
+                      style: ElevatedButton.styleFrom(
+                          shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))))),
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+                RichText(
+                    text: TextSpan(children: [
+                  const TextSpan(
+                      text: ' Resend OTP ',
+                      style: TextStyle(color: Colors.black, fontSize: 16)),
+                  TextSpan(
+                      text: ' 00:$startTime ',
+                      style: const TextStyle(color: Colors.blue, fontSize: 16)),
+                  const TextSpan(
+                      text: ' seconds ',
+                      style: TextStyle(color: Colors.black, fontSize: 16)),
+                ])),
+                const SizedBox(
+                  height: 30,
+                ),
+                startTime == 0
+                    ? TextButton.icon(
                         onPressed: () {
-                          verifyOtp();
+                          reSendOtp();
+                          if (mounted) {
+                            setState(() {
+                              startTime = 59;
+                            });
+                          }
+                          startTimer();
                         },
-                        icon: const Icon(Icons.person),
-                        label: const Text('Login'),
-                        style: ElevatedButton.styleFrom(
-                            shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))))),
-                  ),
-                  RichText(
-                      text: TextSpan(children: [
-                    const TextSpan(
-                        text: ' Resend OTP ',
-                        style: TextStyle(color: Colors.black, fontSize: 16)),
-                    TextSpan(
-                        text: ' 00:$startTime ',
-                        style:
-                            const TextStyle(color: Colors.red, fontSize: 16)),
-                    const TextSpan(
-                        text: ' seconds ',
-                        style: TextStyle(color: Colors.black, fontSize: 16)),
-                  ])),
-                  startTime == 0
-                      ? TextButton.icon(
-                          onPressed: () {
-                            reSendOtp();
-                            if (mounted) {
-                              setState(() {
-                                startTime = 59;
-                              });
-                            }
-                            startTimer();
-                          },
-                          icon: const Icon(
-                            Icons.restore,
-                            color: Colors.red,
-                          ),
-                          label: const Text(
-                            'Resend OTP',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        )
-                      : Container(
-                          height: 5,
-                        )
-                ],
-              ),
+                        icon: const Icon(
+                          Icons.restore,
+                          color: Colors.blue,
+                        ),
+                        label: const Text(
+                          'Resend OTP',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      )
+                    : Container(
+                        height: 5,
+                      )
+              ],
             ),
           ],
         ),

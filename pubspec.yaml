@@ -26,10 +26,12 @@ dependencies:
   firebase_auth: ^3.2.0
   cloud_firestore: ^3.1.0
   firebase_messaging: ^11.1.0
+  firebase_storage: ^10.1.0
 
   #Images & Videos
   image_picker: ^0.8.4+4
   flutter_image_slideshow: ^0.1.2
+  image_cropper: ^1.4.1
 
   # Server
   http: ^0.13.4
