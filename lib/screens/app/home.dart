@@ -1,6 +1,7 @@
 import 'package:awareness_admin/models/event.dart';
 import 'package:awareness_admin/screens/app/event_details.dart';
 import 'package:awareness_admin/screens/app/profile.dart';
+import 'package:awareness_admin/screens/app/sos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -284,7 +285,7 @@ class _HomeState extends State<Home> {
                   ),
                 ],
               ),
-              Text('Hello'),
+              const SOSScreen(),
               const Profile()
             ]),
         bottomNavigationBar: BottomNavigationBar(
