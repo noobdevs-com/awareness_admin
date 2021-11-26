@@ -7,9 +7,12 @@ class FCMNotification {
   GetStorage getStorage = GetStorage();
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   Future<String?> updateDeviceToken() async {
-    if (!getStorage.hasData('deviceToken')) {
+    if (!getStorage.hasData('adminDeviceToken')) {
       String? token = await messaging.getToken();
-      getStorage.write('deviceToken', token);
+      getStorage.write('adminDeviceToken', token);
+      return token;
+    } else {
+      String? token = getStorage.read('adminDeviceToken');
       return token;
     }
   }
@@ -28,10 +31,10 @@ class FCMNotification {
     return settings;
   }
 
-  Future<void> createOrderNotification(
+  Future<void> createNotification(
       String token, String title, String body) async {
     final data = await http.post(
-        Uri.parse('https://picklick.herokuapp.com/notification'),
+        Uri.parse('https://womena.herokuapp.com/notification'),
         headers: {'Content-Type': "application/json"},
         body: jsonEncode({"token": token, "body": body, "title": title}));
     print('Code : ${data.reasonPhrase}');

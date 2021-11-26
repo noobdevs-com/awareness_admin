@@ -10,7 +10,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class EventDetails extends StatefulWidget {
   final String eventId;
-  const EventDetails({Key? key, required this.eventId}) : super(key: key);
+  final String userId;
+  const EventDetails({Key? key, required this.eventId, required this.userId})
+      : super(key: key);
 
   @override
   _EventDetailsState createState() => _EventDetailsState();
@@ -18,7 +20,8 @@ class EventDetails extends StatefulWidget {
 
 class _EventDetailsState extends State<EventDetails> {
   dynamic event;
-  dynamic user;
+  String? userName;
+  String? userImg;
   bool loading = false;
 
   Future getUser(userid) async {
@@ -26,17 +29,27 @@ class _EventDetailsState extends State<EventDetails> {
       loading = true;
     });
     try {
-      DocumentSnapshot response = await FirebaseFirestore.instance
+      await FirebaseFirestore.instance
           .collection('users')
           .doc(userid)
-          .get();
-      user = response.data();
+          .get()
+          .then((value) {
+        var data = value.data()!;
+        setState(() {
+          userName = data['name'];
+          userImg = data['profile_img'];
+        });
+      }).whenComplete(() {
+        setState(() {
+          loading = false;
+        });
+      });
     } catch (e) {
       Get.snackbar("oops...", "Unable to get event");
+      setState(() {
+        loading = false;
+      });
     }
-    setState(() {
-      loading = false;
-    });
   }
 
   Future<void> getEvent() async {
@@ -78,6 +91,7 @@ class _EventDetailsState extends State<EventDetails> {
   void initState() {
     super.initState();
     getEvent();
+    getUser(widget.userId);
   }
 
   @override
@@ -185,7 +199,7 @@ class _EventDetailsState extends State<EventDetails> {
                         colorClickableText: Colors.grey,
                         trimMode: TrimMode.Line,
                         trimCollapsedText: 'Read more',
-                        trimExpandedText: 'Collaspe',
+                        trimExpandedText: 'Read less',
                         moreStyle:
                             const TextStyle(fontSize: 14, color: Colors.blue),
                       ),
@@ -197,28 +211,27 @@ class _EventDetailsState extends State<EventDetails> {
                       child: ListTile(
                         minVerticalPadding: 20,
                         leading: CircleAvatar(
-                          // backgroundImage: NetworkImage(user['display_image']),
-                          radius: 27,
+                          backgroundImage: NetworkImage(userImg!),
                         ),
                         title: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Text(
-                            //  user['display_name'],
-                            // style: const TextStyle(fontSize: 18),
-                            // ),
+                            const Text(
+                              'Hosted By',
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.grey),
+                            ),
+                            const SizedBox(
+                              height: 3,
+                            ),
+                            Text(
+                              userName!,
+                              style: const TextStyle(fontSize: 18),
+                            ),
                             const SizedBox(
                               height: 3,
                             ),
                           ],
-                        ),
-                        trailing: const SizedBox(
-                          width: 40,
-                          child: Center(
-                              child: Icon(
-                            Icons.arrow_right,
-                            size: 28,
-                          )),
                         ),
                       ),
                     ),

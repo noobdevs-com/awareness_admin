@@ -6,13 +6,16 @@ class Event {
   DateTime? createdAt;
   DateTime? startTime;
   List images = [];
+  String? uid;
+  String? venue;
 
-  Event({
-    this.description,
-    this.title,
-    this.status,
-    this.startTime,
-    this.did,
-    this.images = const [],
-  });
+  Event(
+      {this.description,
+      this.title,
+      this.status,
+      this.startTime,
+      this.did,
+      this.images = const [],
+      this.uid,
+      this.venue});
 }

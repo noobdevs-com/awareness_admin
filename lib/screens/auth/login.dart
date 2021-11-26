@@ -1,4 +1,7 @@
+import 'package:awareness_admin/screens/app/home.dart';
 import 'package:awareness_admin/screens/auth/otp.dart';
+import 'package:awareness_admin/services/fcm.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +18,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final phoneNumberController = TextEditingController();
+  FCMNotification fcmNotification = FCMNotification();
   GetStorage getStorage = GetStorage();
   late String verificationId;
   int? resendToken;
@@ -30,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
         loading == false;
       });
       Get.snackbar('UnAuthorized User',
-          'You are not an authorized user of picklick , Contact us for enquires');
+          'You are not an authorized user of the app , Contact us for enquires');
     }
     if (data.statusCode == 200) {
       await sendOtp();
@@ -41,9 +45,14 @@ class _LoginScreenState extends State<LoginScreen> {
     await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: '+91${phoneNumberController.text}',
         verificationCompleted: (PhoneAuthCredential credential) async {
-          final user =
-              await FirebaseAuth.instance.signInWithCredential(credential);
-
+          await FirebaseFirestore.instance
+              .collection('admin')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .set({
+            'notificationToken': await fcmNotification.updateDeviceToken(),
+            'phone_number': FirebaseAuth.instance.currentUser!.phoneNumber
+          }, SetOptions(merge: true));
+          Get.offAll(() => const Home());
           Get.snackbar('OTP Verified Succesfully',
               'Your OTP Has Been Verified Automatically !');
         },
@@ -166,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             shape: const RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10))))),
-                  )
+                  ),
                 ],
               ),
             )

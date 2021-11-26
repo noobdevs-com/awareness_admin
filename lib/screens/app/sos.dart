@@ -63,66 +63,76 @@ class _SOSScreenState extends State<SOSScreen> {
         await getSOS();
         return;
       },
-      child: ListView.builder(
-          itemCount: sosList.length,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 3),
-              child: Card(
-                  elevation: 1,
-                  shadowColor: Colors.grey[300],
-                  child: ListTile(
-                    onTap: () => Get.to(() => SOSDetails(
-                          sosId: sosList[index].did!,
-                        )),
-                    trailing: SizedBox(
-                      width: 60,
-                      child: Center(
-                        child: Row(
-                          children: const [
-                            Text(
-                              'View',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                            Icon(
-                              Icons.arrow_right,
-                              color: Colors.grey,
-                            )
-                          ],
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'SOS Events',
+            style: TextStyle(color: Colors.black),
+          ),
+          leadingWidth: 0,
+          elevation: 1,
+        ),
+        body: ListView.builder(
+            itemCount: sosList.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 3),
+                child: Card(
+                    elevation: 1,
+                    shadowColor: Colors.grey[300],
+                    child: ListTile(
+                      onTap: () => Get.to(() => SOSDetails(
+                            sosId: sosList[index].did!,
+                          )),
+                      trailing: SizedBox(
+                        width: 60,
+                        child: Center(
+                          child: Row(
+                            children: const [
+                              Text(
+                                'View',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                              Icon(
+                                Icons.arrow_right,
+                                color: Colors.grey,
+                              )
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(
-                          height: 2,
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              DateFormat.jm().format(
-                                (sosList[index].createdAt!),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(
+                            height: 2,
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                DateFormat.jm().format(
+                                  (sosList[index].createdAt!),
+                                ),
+                                style: TextStyle(
+                                    color: Colors.blue.withOpacity(0.7),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 17),
                               ),
-                              style: TextStyle(
-                                  color: Colors.blue.withOpacity(0.7),
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 17),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              DateFormat.yMMMMd()
-                                  .format((sosList[index].createdAt!)),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  )),
-            );
-          }),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                DateFormat.yMMMMd()
+                                    .format((sosList[index].createdAt!)),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    )),
+              );
+            }),
+      ),
     );
   }
 }

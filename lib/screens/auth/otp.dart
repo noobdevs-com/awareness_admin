@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:awareness_admin/screens/app/home.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pin_input_text_field/pin_input_text_field.dart';
 import 'package:awareness_admin/services/fcm.dart';
@@ -44,8 +45,14 @@ class _OTPScreenState extends State<OTPScreen> {
     await FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: '+91${widget.number}',
       verificationCompleted: (PhoneAuthCredential credential) async {
-        final user =
-            await FirebaseAuth.instance.signInWithCredential(credential);
+        await FirebaseFirestore.instance
+            .collection('admin')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .set({
+          'notificationToken': await fcmNotification.updateDeviceToken(),
+          'phone_number': FirebaseAuth.instance.currentUser!.phoneNumber
+        }, SetOptions(merge: true));
+        Get.offAll(() => const Home());
       },
       verificationFailed: (FirebaseAuthException e) {
         if (e.code == 'invalid-phone-number') {
@@ -70,9 +77,14 @@ class _OTPScreenState extends State<OTPScreen> {
 
       // Sign the user in (or link) with the credential
 
-      UserCredential user =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      await FirebaseFirestore.instance
+          .collection('admin')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .set({
+        'notificationToken': await fcmNotification.updateDeviceToken(),
+        'phone_number': FirebaseAuth.instance.currentUser!.phoneNumber
+      }, SetOptions(merge: true));
       Get.offAll(() => const Home());
 
       //  Check if user exist

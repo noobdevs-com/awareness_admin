@@ -28,6 +28,9 @@ dependencies:
   firebase_messaging: ^11.1.0
   firebase_storage: ^10.1.0
 
+  # Notifcation
+  flutter_local_notifications: ^9.0.0
+
   #Images & Videos
   image_picker: ^0.8.4+4
   flutter_image_slideshow: ^0.1.2

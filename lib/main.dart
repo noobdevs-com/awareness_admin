@@ -26,10 +26,14 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
-        scaffoldBackgroundColor: Colors.white,
-        primarySwatch: Colors.blue,
-      ),
+          appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF29357c)),
+          scaffoldBackgroundColor: Colors.white,
+          primaryColor: const Color(0xFF29357c),
+          floatingActionButtonTheme: const FloatingActionButtonThemeData(
+              backgroundColor: Color(0xFF29357c)),
+          bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+              selectedItemColor: Color(0xFF29357c),
+              selectedLabelStyle: TextStyle(color: Color(0xFF29357c)))),
       home: const Wrapper(),
     );
   }

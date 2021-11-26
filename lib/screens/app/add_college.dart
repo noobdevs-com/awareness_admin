@@ -1,7 +1,10 @@
-import 'package:awareness_admin/services/college.dart';
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
+
+import 'package:http/http.dart' as http;
 
 class AddCollege extends StatefulWidget {
   const AddCollege({Key? key}) : super(key: key);
@@ -11,11 +14,35 @@ class AddCollege extends StatefulWidget {
 }
 
 class _AddCollegeState extends State<AddCollege> {
-  final TextEditingController usernameTextEditingController =
-      TextEditingController();
+  final TextEditingController emailController = TextEditingController();
 
-  final TextEditingController phoneTextEditingController =
-      TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  Future<void> addUser(String email, String name) async {
+    final data = await http.post(
+        Uri.parse(
+          'https://womena.herokuapp.com/users/email',
+        ),
+        headers: {'Content-Type': "application/json"},
+        body: jsonEncode({'hotel_name': name, 'email': email}));
+    print(data.body);
+    print(data.statusCode);
+  }
+
+  Future<void> signUpUser(String email, String password) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 
   bool loading = false;
 
@@ -106,10 +133,10 @@ class _AddCollegeState extends State<AddCollege> {
                 child: SizedBox(
                   height: 45,
                   child: TextFormField(
-                    controller: usernameTextEditingController,
+                    controller: emailController,
                     decoration: const InputDecoration(
-                        labelText: 'Username',
-                        hintText: 'Enter username',
+                        labelText: 'Email',
+                        hintText: 'Enter Email',
                         border: OutlineInputBorder(
                             borderRadius:
                                 BorderRadius.all(Radius.circular(10)))),
@@ -124,12 +151,12 @@ class _AddCollegeState extends State<AddCollege> {
                 child: SizedBox(
                   height: 45,
                   child: TextFormField(
-                    controller: phoneTextEditingController,
+                    controller: passwordController,
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     decoration: const InputDecoration(
-                        labelText: 'Phone No.',
-                        hintText: 'Enter user phone number',
+                        labelText: 'Password',
+                        hintText: 'Enter Password',
                         border: OutlineInputBorder(
                             borderRadius:
                                 BorderRadius.all(Radius.circular(10)))),
@@ -147,26 +174,29 @@ class _AddCollegeState extends State<AddCollege> {
               padding: const EdgeInsets.only(bottom: 15),
               child: ElevatedButton.icon(
                 onPressed: () async {
-                  if (loading == true) return;
-                  if (usernameTextEditingController.text == "" ||
-                      phoneTextEditingController.text == "") {
-                    return Get.snackbar("oops", "please fill all the fields.");
-                  }
-                  if (phoneTextEditingController.text.length < 10 ||
-                      phoneTextEditingController.text.length > 10) {
-                    return Get.snackbar("oops", "please enter valid number");
-                  }
+                  // if (loading == true) return;
+                  // if (emailController.text == "" ||
+                  //     passwordController.text == "") {
+                  //   return Get.snackbar("oops", "please fill all the fields.");
+                  // }
+                  // if (passwordController.text.length < 10 ||
+                  //     passwordController.text.length > 10) {
+                  //   return Get.snackbar("oops", "please enter valid number");
+                  // }
                   setState(() {
                     loading = true;
                   });
-                  await addCollege(
-                    usernameTextEditingController.text,
-                    int.parse(phoneTextEditingController.text),
-                  );
-                  usernameTextEditingController.clear();
-                  phoneTextEditingController.clear();
-                  setState(() {
-                    loading = false;
+                  // await addCollege(
+                  //   emailController.text,
+                  //   int.parse(passwordController.text),
+                  // );
+                  signUpUser(emailController.text, passwordController.text)
+                      .whenComplete(() {
+                    emailController.clear();
+                    passwordController.clear();
+                    setState(() {
+                      loading = false;
+                    });
                   });
                 },
                 icon: const Icon(Icons.person),
