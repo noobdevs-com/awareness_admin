@@ -98,10 +98,9 @@ class _EventDetailsState extends State<EventDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: const Text(
           "Event Details",
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.white),
         ),
         leading: IconButton(
             onPressed: () {
@@ -109,7 +108,7 @@ class _EventDetailsState extends State<EventDetails> {
             },
             icon: const Icon(
               Icons.arrow_back_ios,
-              color: Colors.black,
+              color: Colors.white,
             )),
       ),
       body: RefreshIndicator(

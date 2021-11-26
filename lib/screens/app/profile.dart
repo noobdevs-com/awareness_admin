@@ -13,10 +13,9 @@ class Profile extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 1,
-        backgroundColor: Colors.white,
         title: const Text(
           'Profile',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.white),
         ),
         leadingWidth: 0,
       ),
@@ -43,6 +42,9 @@ class Profile extends StatelessWidget {
               child: ListTile(
                 onTap: () {
                   Get.defaultDialog(
+                      confirmTextColor: Colors.white,
+                      cancelTextColor: const Color(0xFF29357c),
+                      buttonColor: const Color(0xFF29357c),
                       title: 'Log Out',
                       middleText: 'Do You Want To Log Out This Account ?',
                       textCancel: 'No',

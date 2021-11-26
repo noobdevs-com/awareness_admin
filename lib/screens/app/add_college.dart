@@ -26,7 +26,7 @@ class _AddCollegeState extends State<AddCollege> {
       final data = await http
           .post(
               Uri.parse(
-                'https://womena.herokuapp.com/users/email',
+                'https://womena.herokuapp.com/users',
               ),
               headers: {'Content-Type': "application/json"},
               body: jsonEncode({'username': name, 'email': email}))
@@ -57,14 +57,13 @@ class _AddCollegeState extends State<AddCollege> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
         leading: IconButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
             icon: const Icon(
               Icons.arrow_back_ios,
-              color: Colors.black,
+              color: Colors.white,
             )),
       ),
       body: Form(
@@ -196,7 +195,10 @@ class _AddCollegeState extends State<AddCollege> {
                             await addUser(
                               emailController.text,
                               nameController.text,
-                            );
+                            ).whenComplete(() {
+                              emailController.clear();
+                              nameController.clear();
+                            });
                           }
                         },
                   icon: loading
