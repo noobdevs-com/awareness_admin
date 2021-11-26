@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -21,18 +22,27 @@ class _AddCollegeState extends State<AddCollege> {
 
   Future<void> addUser(String email, String name) async {
     try {
-      final data = await http.post(
-          Uri.parse(
-            'https://womena.herokuapp.com/users/email',
-          ),
-          headers: {'Content-Type': "application/json"},
-          body: jsonEncode({'hotel_name': name, 'email': email}));
+      final data = await http
+          .post(
+              Uri.parse(
+                'https://womena.herokuapp.com/users/email',
+              ),
+              headers: {'Content-Type': "application/json"},
+              body: jsonEncode({'user_name': name, 'email': email}))
+          .whenComplete(() {
+        setState(() {
+          loading = false;
+        });
+      });
 
       if (data.statusCode == 201) {
         Get.snackbar('Succesful !', 'User was succesfully added');
       }
     } catch (e) {
       Get.snackbar('Unexpected Error', '$e');
+      setState(() {
+        loading = false;
+      });
     }
   }
 
@@ -183,19 +193,25 @@ class _AddCollegeState extends State<AddCollege> {
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 15),
                 child: ElevatedButton.icon(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      setState(() {
-                        loading = true;
-                      });
-                      await addUser(
-                        emailController.text,
-                        nameController.text,
-                      );
-                    }
-                  },
-                  icon: const Icon(Icons.person),
-                  label: const Text('Add College'),
+                  onPressed: loading
+                      ? null
+                      : () async {
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              loading = true;
+                            });
+                            await addUser(
+                              emailController.text,
+                              nameController.text,
+                            );
+                          }
+                        },
+                  icon: loading
+                      ? const Text('Loading')
+                      : const Icon(Icons.person),
+                  label: loading
+                      ? const CupertinoActivityIndicator()
+                      : const Text('Add College'),
                   style: ElevatedButton.styleFrom(
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(
@@ -205,7 +221,7 @@ class _AddCollegeState extends State<AddCollege> {
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
