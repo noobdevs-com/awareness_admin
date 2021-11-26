@@ -28,7 +28,7 @@ class _AddCollegeState extends State<AddCollege> {
                 'https://womena.herokuapp.com/users/email',
               ),
               headers: {'Content-Type': "application/json"},
-              body: jsonEncode({'user_name': name, 'email': email}))
+              body: jsonEncode({'username': name, 'email': email}))
           .whenComplete(() {
         setState(() {
           loading = false;
