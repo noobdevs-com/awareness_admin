@@ -98,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 5,
                     child: LinearProgressIndicator(
                       backgroundColor: Colors.white,
-                      color: Colors.blue,
+                      color: Color(0xFF29357c),
                     ),
                   )
                 : const SizedBox(
@@ -159,14 +159,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            loading == true;
-                          });
-                          verifyUser(int.parse(phoneNumberController.text));
-                        },
+                        onPressed: loading
+                            ? null
+                            : () {
+                                setState(() {
+                                  loading = true;
+                                });
+                                verifyUser(
+                                    int.parse(phoneNumberController.text));
+                              },
                         icon: loading == true
-                            ? Icon(Icons.circle)
+                            ? Text('Loading')
                             : const Icon(Icons.person),
                         label: loading == true
                             ? CupertinoActivityIndicator()

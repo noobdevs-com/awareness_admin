@@ -188,6 +188,7 @@ class _EventTileState extends State<EventTile> {
             loading == true
                 ? const LinearProgressIndicator(
                     backgroundColor: Colors.white,
+                    color: Color(0xFF29357c),
                   )
                 : const SizedBox(height: 5),
 
@@ -206,84 +207,87 @@ class _EventTileState extends State<EventTile> {
                                       BorderRadius.all(Radius.circular(8))),
                               elevation: 1,
                               shadowColor: Colors.grey[300],
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                      height: 200,
-                                      width: MediaQuery.of(context).size.width,
-                                      child: ClipRRect(
-                                        borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(8),
-                                            topRight: Radius.circular(8)),
-                                        child: Image(
-                                          fit: BoxFit.fill,
-                                          image: NetworkImage(
-                                              events[index].images.first),
-                                        ),
-                                      )),
-                                  ListTile(
-                                    onTap: () => Get.to(() => EventDetails(
-                                        eventId: events[index].did!,
-                                        userId: events[index].uid!)),
-                                    trailing: SizedBox(
-                                      width: 60,
-                                      child: Center(
-                                        child: Row(
-                                          children: const [
-                                            Text(
-                                              'View',
-                                              style:
-                                                  TextStyle(color: Colors.grey),
-                                            ),
-                                            Icon(
-                                              Icons.arrow_right,
-                                              color: Colors.grey,
-                                            )
-                                          ],
+                              child: GestureDetector(
+                                onTap: () => Get.to(() => EventDetails(
+                                    eventId: events[index].did!,
+                                    userId: events[index].uid!)),
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                        height: 200,
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        child: ClipRRect(
+                                          borderRadius: const BorderRadius.only(
+                                              topLeft: Radius.circular(8),
+                                              topRight: Radius.circular(8)),
+                                          child: Image(
+                                            fit: BoxFit.fill,
+                                            image: NetworkImage(
+                                                events[index].images.first),
+                                          ),
+                                        )),
+                                    ListTile(
+                                      trailing: SizedBox(
+                                        width: 60,
+                                        child: Center(
+                                          child: Row(
+                                            children: const [
+                                              Text(
+                                                'View',
+                                                style: TextStyle(
+                                                    color: Colors.grey),
+                                              ),
+                                              Icon(
+                                                Icons.arrow_right,
+                                                color: Colors.grey,
+                                              )
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    title: Text(
-                                      events[index].title!.toUpperCase(),
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(
-                                          height: 2,
-                                        ),
-                                        Text(events[index].status!),
-                                        const SizedBox(
-                                          height: 3,
-                                        ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              DateFormat.jm().format(
-                                                (events[index].startTime!),
+                                      title: Text(
+                                        events[index].title!.toUpperCase(),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(
+                                            height: 2,
+                                          ),
+                                          Text(events[index].status!),
+                                          const SizedBox(
+                                            height: 3,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                DateFormat.jm().format(
+                                                  (events[index].startTime!),
+                                                ),
+                                                style: TextStyle(
+                                                  color: const Color(0xFF29357c)
+                                                      .withOpacity(0.7),
+                                                  fontWeight: FontWeight.w500,
+                                                ),
                                               ),
-                                              style: TextStyle(
-                                                color: const Color(0xFF29357c)
-                                                    .withOpacity(0.7),
-                                                fontWeight: FontWeight.w500,
+                                              const SizedBox(
+                                                width: 4,
                                               ),
-                                            ),
-                                            const SizedBox(
-                                              width: 4,
-                                            ),
-                                            Text(
-                                              DateFormat.yMMMMd().format(
-                                                  (events[index].startTime!)),
-                                            ),
-                                          ],
-                                        )
-                                      ],
+                                              Text(
+                                                DateFormat.yMMMMd().format(
+                                                    (events[index].startTime!)),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               )),
                         );
                       }),

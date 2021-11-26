@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:awareness_admin/constants/value_constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -122,6 +123,7 @@ class _AddCollegeState extends State<AddCollege> {
                       height: 100,
                       width: MediaQuery.of(context).size.width,
                       child: const CircleAvatar(
+                        backgroundColor: Color(0xFF29357c),
                         child: Icon(
                           Icons.person,
                           size: 100,
@@ -147,12 +149,8 @@ class _AddCollegeState extends State<AddCollege> {
                         }
                       },
                       controller: emailController,
-                      decoration: const InputDecoration(
-                          labelText: 'Email',
-                          hintText: 'Enter Email',
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)))),
+                      decoration: kTextFieldDecoration.copyWith(
+                          labelText: 'Email', hintText: 'Enter User Email'),
                     ),
                   ),
                 ),
@@ -173,12 +171,8 @@ class _AddCollegeState extends State<AddCollege> {
                       },
                       controller: nameController,
                       keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
-                          labelText: 'Name',
-                          hintText: 'Enter User Name',
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)))),
+                      decoration: kTextFieldDecoration.copyWith(
+                          labelText: 'Name', hintText: 'Enter User Name'),
                     ),
                   ),
                 ),
@@ -188,7 +182,7 @@ class _AddCollegeState extends State<AddCollege> {
               ],
             ),
             SizedBox(
-              width: MediaQuery.of(context).size.width - 40,
+              width: MediaQuery.of(context).size.width - 60,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 15),
                 child: ElevatedButton.icon(

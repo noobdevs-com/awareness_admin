@@ -98,6 +98,7 @@ class _EventDetailsState extends State<EventDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text(
           "Event Details",
           style: TextStyle(color: Colors.black),
@@ -176,7 +177,7 @@ class _EventDetailsState extends State<EventDetails> {
                           Text(
                             event['status'],
                             style: const TextStyle(
-                              color: Colors.blue,
+                              color: Color(0xFF29357c),
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
@@ -211,6 +212,7 @@ class _EventDetailsState extends State<EventDetails> {
                       child: ListTile(
                         minVerticalPadding: 20,
                         leading: CircleAvatar(
+                          radius: 28,
                           backgroundImage: NetworkImage(userImg!),
                         ),
                         title: Column(
