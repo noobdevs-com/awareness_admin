@@ -173,7 +173,6 @@ class _AddCollegeState extends State<AddCollege> {
                       },
                       controller: nameController,
                       keyboardType: TextInputType.text,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: const InputDecoration(
                           labelText: 'Name',
                           hintText: 'Enter User Name',
