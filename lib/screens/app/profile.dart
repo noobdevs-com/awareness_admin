@@ -12,6 +12,7 @@ class Profile extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         elevation: 1,
         title: const Text(
           'Profile',

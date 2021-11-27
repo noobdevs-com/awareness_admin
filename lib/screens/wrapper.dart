@@ -12,9 +12,9 @@ class Wrapper extends StatelessWidget {
   Future<void> checkStatus() async {
     await Future.delayed(const Duration(seconds: 3));
     if (FirebaseAuth.instance.currentUser != null) {
-      Get.to(() => const Home());
+      Get.offAll(() => const Home());
     } else {
-      Get.to(() => const LoginScreen());
+      Get.offAll(() => const LoginScreen());
     }
   }
 

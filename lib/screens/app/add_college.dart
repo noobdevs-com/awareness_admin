@@ -56,6 +56,7 @@ class _AddCollegeState extends State<AddCollege> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        title: const Text('Add College'),
         elevation: 0,
         leading: IconButton(
             onPressed: () {
