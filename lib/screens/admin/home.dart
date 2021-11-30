@@ -1,16 +1,15 @@
 import 'package:awareness_admin/models/event.dart';
-import 'package:awareness_admin/screens/app/event_details.dart';
-import 'package:awareness_admin/screens/app/event_tile.dart';
-import 'package:awareness_admin/screens/app/profile.dart';
-import 'package:awareness_admin/screens/app/sos.dart';
+import 'package:awareness_admin/screens/admin/event_tile.dart';
+import 'package:awareness_admin/screens/admin/profile.dart';
+import 'package:awareness_admin/screens/admin/sos.dart';
+
 import 'package:awareness_admin/services/local_notification.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -142,7 +141,7 @@ class _HomeState extends State<Home> {
         body: PageView(
             onPageChanged: onPageChanged,
             controller: _pageController,
-            children: const [EventTile(), Profile()]),
+            children: const [EventTile(), SOSScreen(), Profile()]),
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           enableFeedback: true,
@@ -150,6 +149,10 @@ class _HomeState extends State<Home> {
           onTap: onTabTapped,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dangerous),
+              label: 'SOS',
+            ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: 'Account',

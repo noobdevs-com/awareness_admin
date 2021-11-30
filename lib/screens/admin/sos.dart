@@ -1,5 +1,6 @@
 import 'package:awareness_admin/models/sos.dart';
-import 'package:awareness_admin/screens/app/sos_details.dart';
+import 'package:awareness_admin/screens/admin/sos_details.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,6 +29,7 @@ class _SOSScreenState extends State<SOSScreen> {
       sosList.clear();
       for (var i = 0; i < ref.docs.length; i++) {
         SOS sos = SOS(
+          uid: ref.docs[i]['uid'],
           did: ref.docs[i].id,
           description: ref.docs[i]["description"] ?? "",
           coordinates: ref.docs[i]["coordinates"] ?? [],
@@ -36,12 +38,15 @@ class _SOSScreenState extends State<SOSScreen> {
         );
         sosList.add(sos);
       }
+      setState(() {
+        loading = false;
+      });
     } catch (e) {
       Get.snackbar("oops...", "Unable to get sos events");
+      setState(() {
+        loading = false;
+      });
     }
-    setState(() {
-      loading = false;
-    });
   }
 
   @override
@@ -67,7 +72,6 @@ class _SOSScreenState extends State<SOSScreen> {
         appBar: AppBar(
           title: const Text(
             'SOS Events',
-            style: TextStyle(color: Colors.black),
           ),
           leadingWidth: 0,
           elevation: 1,
@@ -83,6 +87,7 @@ class _SOSScreenState extends State<SOSScreen> {
                     child: ListTile(
                       onTap: () => Get.to(() => SOSDetails(
                             sosId: sosList[index].did!,
+                            uid: sosList[index].uid!,
                           )),
                       trailing: SizedBox(
                         width: 60,

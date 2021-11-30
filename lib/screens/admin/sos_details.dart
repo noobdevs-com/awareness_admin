@@ -10,7 +10,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class SOSDetails extends StatefulWidget {
   final String sosId;
-  const SOSDetails({Key? key, required this.sosId}) : super(key: key);
+  final String uid;
+  const SOSDetails({Key? key, required this.sosId, required this.uid})
+      : super(key: key);
 
   @override
   _EventDetailsState createState() => _EventDetailsState();
@@ -20,24 +22,8 @@ class _EventDetailsState extends State<SOSDetails> {
   dynamic event;
   dynamic user;
   bool loading = false;
-
-  Future getUser(userid) async {
-    setState(() {
-      loading = true;
-    });
-    try {
-      DocumentSnapshot response = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userid)
-          .get();
-      user = response.data();
-    } catch (e) {
-      Get.snackbar("oops...", "Unable to get event");
-    }
-    setState(() {
-      loading = false;
-    });
-  }
+  String? userName;
+  String? userImg;
 
   Future<void> getEvent() async {
     setState(() {
@@ -74,10 +60,39 @@ class _EventDetailsState extends State<SOSDetails> {
     });
   }
 
+  Future getUser(userid) async {
+    setState(() {
+      loading = true;
+    });
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userid)
+          .get()
+          .then((value) {
+        var data = value.data()!;
+        setState(() {
+          userName = data['name'];
+          userImg = data['profile_img'];
+        });
+      }).whenComplete(() {
+        setState(() {
+          loading = false;
+        });
+      });
+    } catch (e) {
+      Get.snackbar("oops...", "Unable to get event");
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     getEvent();
+    getUser(widget.uid);
   }
 
   @override
@@ -86,7 +101,6 @@ class _EventDetailsState extends State<SOSDetails> {
       appBar: AppBar(
         title: const Text(
           "SOS Details",
-          style: TextStyle(color: Colors.black),
         ),
         leading: IconButton(
             onPressed: () {
@@ -94,7 +108,6 @@ class _EventDetailsState extends State<SOSDetails> {
             },
             icon: const Icon(
               Icons.arrow_back_ios,
-              color: Colors.black,
             )),
       ),
       body: loading
@@ -154,6 +167,40 @@ class _EventDetailsState extends State<SOSDetails> {
                 const SizedBox(
                   height: 10,
                 ),
+                loading
+                    ? Container(
+                        height: 5,
+                      )
+                    : Card(
+                        child: ListTile(
+                          minVerticalPadding: 20,
+                          leading: CircleAvatar(
+                            radius: 25,
+                            backgroundImage:
+                                userImg == null ? null : NetworkImage(userImg!),
+                          ),
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Requested by',
+                                style:
+                                    TextStyle(fontSize: 14, color: Colors.grey),
+                              ),
+                              const SizedBox(
+                                height: 3,
+                              ),
+                              Text(
+                                userName!,
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(
+                                height: 3,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
 
                 // Google Maps
                 Padding(

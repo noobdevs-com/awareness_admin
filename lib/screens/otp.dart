@@ -1,6 +1,9 @@
 import 'dart:async';
 
-import 'package:awareness_admin/screens/app/home.dart';
+import 'package:awareness_admin/screens/admin/home.dart';
+import 'package:awareness_admin/screens/user/user_home.dart';
+import 'package:awareness_admin/screens/user_details.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pin_input_text_field/pin_input_text_field.dart';
@@ -13,11 +16,13 @@ class OTPScreen extends StatefulWidget {
   final String number;
   final String verificationId;
   final int? resendToken;
+  final String userType;
 
   OTPScreen(
       {required this.number,
       required this.verificationId,
-      required this.resendToken});
+      required this.resendToken,
+      required this.userType});
 
   @override
   _OTPScreenState createState() => _OTPScreenState();
@@ -45,14 +50,28 @@ class _OTPScreenState extends State<OTPScreen> {
     await FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: '+91${widget.number}',
       verificationCompleted: (PhoneAuthCredential credential) async {
-        await FirebaseFirestore.instance
-            .collection('admin')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .set({
-          'notificationToken': await fcmNotification.updateDeviceToken(),
-          'phone_number': FirebaseAuth.instance.currentUser!.phoneNumber
-        }, SetOptions(merge: true));
-        Get.offAll(() => const Home());
+        if (widget.userType == 'admin') {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .set({
+            'notificationToken': await fcmNotification.updateDeviceToken(),
+            'phone_number': FirebaseAuth.instance.currentUser!.phoneNumber,
+            'type': 'admin'
+          }, SetOptions(merge: true)).whenComplete(() {});
+        } else if (widget.userType == 'user') {
+          final user = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .get();
+
+          user.data()!.isEmpty
+              ? Get.off(() => const UserDetails())
+              : Get.offAll(() => Home);
+        }
+
+        Get.snackbar('OTP Verified Succesfully',
+            'Your OTP Has Been Verified Automatically !');
       },
       verificationFailed: (FirebaseAuthException e) {
         if (e.code == 'invalid-phone-number') {
@@ -78,15 +97,32 @@ class _OTPScreenState extends State<OTPScreen> {
       // Sign the user in (or link) with the credential
 
       await FirebaseAuth.instance.signInWithCredential(credential);
-      await FirebaseFirestore.instance
-          .collection('admin')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .set({
-        'notificationToken': await fcmNotification.updateDeviceToken(),
-        'phone_number': FirebaseAuth.instance.currentUser!.phoneNumber
-      }, SetOptions(merge: true));
-      Get.offAll(() => const Home());
+      if (widget.userType == 'admin') {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .set({
+          'notificationToken': await fcmNotification.updateDeviceToken(),
+          'phone_number': FirebaseAuth.instance.currentUser!.phoneNumber,
+          'type': 'admin'
+        }, SetOptions(merge: true));
 
+        Navigator.push(context, MaterialPageRoute(builder: (_) {
+          return Home();
+        }));
+      } else if (widget.userType == 'user') {
+        final user = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .get();
+
+        !user.exists
+            ? Get.off(() => const UserDetails())
+            : Get.offAll(() => UserHome);
+      }
+
+      Get.snackbar('OTP Verified Succesfully',
+          'Your OTP Has Been Verified Automatically !');
       //  Check if user exist
 
       setState(() {

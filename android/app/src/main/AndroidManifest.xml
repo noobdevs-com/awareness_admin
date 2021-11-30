@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.awareness_admin">
    <application
-        android:label="AHC_admin"
+        android:label="AHC"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
@@ -43,5 +43,11 @@
             <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="noobdevs" />
+            <meta-data 
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDj6VGvX5WX2O3ubUWnMP-EGAFb03o016U"/>
     </application>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 </manifest>

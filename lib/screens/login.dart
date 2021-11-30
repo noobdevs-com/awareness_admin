@@ -1,5 +1,10 @@
-import 'package:awareness_admin/screens/app/home.dart';
-import 'package:awareness_admin/screens/auth/otp.dart';
+import 'package:awareness_admin/constants/value_constants.dart';
+import 'package:awareness_admin/screens/admin/home.dart';
+
+import 'package:awareness_admin/screens/otp.dart';
+import 'package:awareness_admin/screens/user/user_home.dart';
+
+import 'package:awareness_admin/screens/user_details.dart';
 import 'package:awareness_admin/services/fcm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,51 +13,71 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class AuthWrapperScreen extends StatefulWidget {
+  const AuthWrapperScreen({Key? key}) : super(key: key);
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  _AuthWrapperScreenState createState() => _AuthWrapperScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
   final phoneNumberController = TextEditingController();
   FCMNotification fcmNotification = FCMNotification();
   GetStorage getStorage = GetStorage();
   late String verificationId;
+  String? userType;
   int? resendToken;
   bool loading = false;
 
   Future<void> verifyUser(int phoneNumber) async {
     final data = await http
-        .get(Uri.parse('https://womena.herokuapp.com/admin/$phoneNumber'));
+        .get(Uri.parse('https://womena.herokuapp.com/users/$phoneNumber'));
     print(data.body);
-    print(data.statusCode);
+
     if (data.statusCode == 404) {
       setState(() {
-        loading == false;
+        loading = false;
       });
       Get.snackbar('UnAuthorized User',
           'You are not an authorized user of the app , Contact us for enquires');
     }
-    if (data.statusCode == 200) {
-      await sendOtp();
+    var jsonResponse = jsonDecode(data.body) as Map<String, dynamic>;
+    userType = jsonResponse['type'];
+    if (data.statusCode == 200 && userType == 'admin') {
+      sendOtp(const Home());
+    } else if (data.statusCode == 200 && userType == 'user') {
+      sendOtp(const UserHome());
     }
   }
 
-  Future<void> sendOtp() async {
+  Future<void> sendOtp(Widget Home) async {
     await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: '+91${phoneNumberController.text}',
         verificationCompleted: (PhoneAuthCredential credential) async {
-          await FirebaseFirestore.instance
-              .collection('admin')
-              .doc(FirebaseAuth.instance.currentUser!.uid)
-              .set({
-            'notificationToken': await fcmNotification.updateDeviceToken(),
-            'phone_number': FirebaseAuth.instance.currentUser!.phoneNumber
-          }, SetOptions(merge: true));
-          Get.offAll(() => const Home());
+          if (userType == 'admin') {
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .set({
+              'notificationToken': await fcmNotification.updateDeviceToken(),
+              'phone_number': FirebaseAuth.instance.currentUser!.phoneNumber,
+              'type': 'admin'
+            }, SetOptions(merge: true));
+
+            Get.offAll(() => Home);
+          } else if (userType == 'user') {
+            final user = await FirebaseFirestore.instance
+                .collection('users')
+                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .get();
+
+            user.data()!.isEmpty
+                ? Get.off(() => const UserDetails())
+                : Get.offAll(() => Home);
+          }
+
           Get.snackbar('OTP Verified Succesfully',
               'Your OTP Has Been Verified Automatically !');
         },
@@ -80,6 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 number: phoneNumberController.text,
                 verificationId: verificationId,
                 resendToken: resendToken,
+                userType: userType!,
               ));
         },
         codeAutoRetrievalTimeout: (String verificationId) {},
@@ -89,7 +115,16 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SingleChildScrollView(
+        body: Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+            image: AssetImage(
+              'assets/bg.png',
+            ),
+            fit: BoxFit.cover),
+      ),
       child: SafeArea(
         child: Column(
           children: [
@@ -111,10 +146,8 @@ class _LoginScreenState extends State<LoginScreen> {
               children: const [
                 CircleAvatar(
                   radius: 50,
-                  child: CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.white,
-                  ),
+                  backgroundImage: AssetImage('assets/christ.png'),
+                  backgroundColor: Colors.white,
                 ),
                 SizedBox(height: 15),
                 Text(
@@ -142,17 +175,15 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 children: [
                   TextFormField(
-                    controller: phoneNumberController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                        suffixIcon: Icon(Icons.phone),
-                        prefixText: '   +91 ',
-                        labelText: 'Ph No.',
-                        hintText: 'Enter Your Phone Number',
-                        border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10)))),
-                  ),
+                      controller: phoneNumberController,
+                      keyboardType: TextInputType.number,
+                      decoration: kTextFieldDecoration.copyWith(
+                          labelText: 'Phone Number',
+                          hintText: 'Enter your phone number',
+                          suffixIcon: const Icon(
+                            Icons.phone,
+                            color: Color(0xFF29357c),
+                          ))),
                   const SizedBox(
                     height: 35,
                   ),

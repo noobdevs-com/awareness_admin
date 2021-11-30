@@ -17,11 +17,11 @@ class AddCollege extends StatefulWidget {
 }
 
 class _AddCollegeState extends State<AddCollege> {
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phNoController = TextEditingController();
 
   final TextEditingController nameController = TextEditingController();
 
-  Future<void> addUser(String email, String name) async {
+  Future<void> addUser(int phoneNumber, String name) async {
     try {
       final data = await http
           .post(
@@ -29,12 +29,13 @@ class _AddCollegeState extends State<AddCollege> {
                 'https://womena.herokuapp.com/users',
               ),
               headers: {'Content-Type': "application/json"},
-              body: jsonEncode({'username': name, 'email': email}))
+              body: jsonEncode({'username': name, 'phone_number': phoneNumber}))
           .whenComplete(() {
         setState(() {
           loading = false;
         });
       });
+      print(data.body);
 
       if (data.statusCode == 201) {
         Get.snackbar('Succesful !', 'User was succesfully added');
@@ -143,14 +144,15 @@ class _AddCollegeState extends State<AddCollege> {
                     child: TextFormField(
                       validator: (value) {
                         if (value == '' || value == null) {
-                          return 'Please enter user email';
+                          return 'Please enter user Phone Number';
                         } else {
                           return null;
                         }
                       },
-                      controller: emailController,
+                      controller: phNoController,
                       decoration: kTextFieldDecoration.copyWith(
-                          labelText: 'Email', hintText: 'Enter User Email'),
+                          labelText: 'Email',
+                          hintText: 'Enter User Phone Number'),
                     ),
                   ),
                 ),
@@ -194,10 +196,10 @@ class _AddCollegeState extends State<AddCollege> {
                               loading = true;
                             });
                             await addUser(
-                              emailController.text,
+                              int.parse(phNoController.text),
                               nameController.text,
                             ).whenComplete(() {
-                              emailController.clear();
+                              phNoController.clear();
                               nameController.clear();
                             });
                           }

@@ -1,3 +1,4 @@
+import 'package:awareness_admin/services/fcm.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
@@ -22,6 +23,7 @@ class _EventDetailsState extends State<EventDetails> {
   dynamic event;
   String? userName;
   String? userImg;
+  String? notifyId;
   bool loading = false;
 
   Future getUser(userid) async {
@@ -38,6 +40,7 @@ class _EventDetailsState extends State<EventDetails> {
         setState(() {
           userName = data['name'];
           userImg = data['profile_img'];
+          notifyId = data['notificationToken'];
         });
       }).whenComplete(() {
         setState(() {
@@ -245,7 +248,13 @@ class _EventDetailsState extends State<EventDetails> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    await updateStatus("Rejected");
+                                    await updateStatus("Rejected")
+                                        .whenComplete(() {
+                                      FCMNotification().createNotification(
+                                          notifyId!,
+                                          ' Resquest Rejected',
+                                          'Your event eequest has been rejected by Admin');
+                                    });
                                     await getEvent();
                                   },
                                   child: const Text(
@@ -264,12 +273,19 @@ class _EventDetailsState extends State<EventDetails> {
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: ElevatedButton(
-                                  onPressed: () async {
-                                    await updateStatus("Approved");
-                                    await getEvent();
-                                  },
-                                  child: const Text('Approve'),
-                                ),
+                                    onPressed: () async {
+                                      await updateStatus("Approved")
+                                          .whenComplete(() {
+                                        FCMNotification().createNotification(
+                                            notifyId!,
+                                            ' Request Approved',
+                                            'Your event eequest has been approved by Admin');
+                                      });
+                                      await getEvent();
+                                    },
+                                    child: const Text('Approve'),
+                                    style: ElevatedButton.styleFrom(
+                                        primary: const Color(0xFF29357c))),
                               ),
                             ),
                           ])
@@ -283,23 +299,19 @@ class _EventDetailsState extends State<EventDetails> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: ElevatedButton(
-                                    onPressed: () async {
-                                      if (await canLaunch(
-                                          event['report_file'])) {
-                                        await launch(event['report_file']);
-                                      } else {
-                                        throw 'Could not open the file.';
-                                      }
-                                    },
-                                    child: const Text(
-                                      'View Report',
-                                    ),
-                                    style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.resolveWith(
-                                              (states) => Colors.blue),
-                                    ),
-                                  ),
+                                      onPressed: () async {
+                                        if (await canLaunch(
+                                            event['report_file'])) {
+                                          await launch(event['report_file']);
+                                        } else {
+                                          await launch(event['report_file']);
+                                        }
+                                      },
+                                      child: const Text(
+                                        'View Report',
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                          primary: const Color(0xFF29357c))),
                                 ),
                               ),
                             ],

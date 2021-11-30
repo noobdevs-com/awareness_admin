@@ -1,11 +1,12 @@
-import 'package:awareness_admin/screens/app/add_college.dart';
-import 'package:awareness_admin/screens/auth/login.dart';
+import 'package:awareness_admin/screens/login.dart';
+import 'package:awareness_admin/screens/user/user_add_event.dart';
+import 'package:awareness_admin/screens/user_details.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class Profile extends StatelessWidget {
-  const Profile({Key? key}) : super(key: key);
+class UserProfile extends StatelessWidget {
+  const UserProfile({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +14,9 @@ class Profile extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        elevation: 1,
+        elevation: 0,
         title: const Text(
-          'Profile',
-          style: TextStyle(color: Colors.white),
+          'Account',
         ),
         leadingWidth: 0,
       ),
@@ -27,9 +27,24 @@ class Profile extends StatelessWidget {
             child: Card(
               child: ListTile(
                 onTap: () {
-                  Get.to(() => const AddCollege());
+                  Get.to(() => const AddEvent());
                 },
-                title: const Text('Add College'),
+                title: const Text('Create Event'),
+                trailing: const Icon(
+                  Icons.arrow_right,
+                  size: 26,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Card(
+              child: ListTile(
+                onTap: () {
+                  Get.to(() => const UserDetails());
+                },
+                title: const Text('Edit Profile'),
                 trailing: const Icon(
                   Icons.arrow_right,
                   size: 26,
@@ -52,7 +67,7 @@ class Profile extends StatelessWidget {
                       textConfirm: 'Yes',
                       onConfirm: () async {
                         await FirebaseAuth.instance.signOut();
-                        Get.offAll(() => const LoginScreen());
+                        Get.offAll(() => const AuthWrapperScreen());
                       });
                 },
                 title: const Text('Logout'),
