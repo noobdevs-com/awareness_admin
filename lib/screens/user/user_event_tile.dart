@@ -35,12 +35,11 @@ class _UserEventTileState extends State<UserEventTile> {
       setState(() {
         for (var i = 0; i < ref.docs.length; i++) {
           Event event = Event(
-            uid: ref.docs[i]['uid'],
-            did: ref.docs[i].id,
-            title: ref.docs[i]["title"],
-            status: ref.docs[i]["status"],
-            startTime: DateTime.parse(ref.docs[i]["start_time"]),
-          );
+              uid: ref.docs[i]['uid'],
+              did: ref.docs[i].id,
+              title: ref.docs[i]["title"],
+              status: ref.docs[i]["status"],
+              startTime: ref.docs[i]["startTime"].toDate());
           events.add(event);
         }
       });
@@ -68,9 +67,7 @@ class _UserEventTileState extends State<UserEventTile> {
           did: ref.docs[i].id,
           title: ref.docs[i]["title"],
           status: ref.docs[i]["status"],
-          startTime: DateTime.parse(
-            ref.docs[i]["start_time"],
-          ),
+          startTime: ref.docs[i]["startTime"].toDate(),
         );
         events.add(event);
       }
@@ -78,6 +75,7 @@ class _UserEventTileState extends State<UserEventTile> {
         loading = false;
       });
     } catch (e) {
+      print(e);
       Get.snackbar("Oops...", "Unable to get events");
       setState(() {
         loading = false;
@@ -145,6 +143,7 @@ class _UserEventTileState extends State<UserEventTile> {
             // Loader
             loading == true
                 ? const LinearProgressIndicator(
+                    color: Color(0xFF29357c),
                     backgroundColor: Colors.white,
                   )
                 : const SizedBox(height: 5),
@@ -204,8 +203,8 @@ class _UserEventTileState extends State<UserEventTile> {
                                             (events[index].startTime!),
                                           ),
                                           style: TextStyle(
-                                              color:
-                                                  Colors.blue.withOpacity(0.7),
+                                              color: const Color(0xFF29357c)
+                                                  .withOpacity(0.7),
                                               fontWeight: FontWeight.w500,
                                               fontSize: 17),
                                         ),

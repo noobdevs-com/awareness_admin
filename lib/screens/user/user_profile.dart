@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class UserProfile extends StatelessWidget {
-  const UserProfile({Key? key}) : super(key: key);
+  String userType;
+  UserProfile({Key? key, required this.userType}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +43,9 @@ class UserProfile extends StatelessWidget {
             child: Card(
               child: ListTile(
                 onTap: () {
-                  Get.to(() => const UserDetails());
+                  Get.to(() => UserDetails(
+                        userType: userType,
+                      ));
                 },
                 title: const Text('Edit Profile'),
                 trailing: const Icon(

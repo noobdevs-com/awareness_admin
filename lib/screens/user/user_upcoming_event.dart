@@ -35,19 +35,19 @@ class _UserUpcomingEventsState extends State<UserUpcomingEvents> {
           did: ref.docs[i].id,
           title: ref.docs[i]["title"],
           status: ref.docs[i]["status"],
-          startTime: DateTime.parse(
-            ref.docs[i]["start_time"],
-          ),
+          startTime: ref.docs[i]["startTime"].toDate(),
         );
         events.add(event);
       }
+      setState(() {
+        loading = false;
+      });
     } catch (e) {
-      print(e);
       Get.snackbar("Oops...", "Unable to get events");
+      setState(() {
+        loading = false;
+      });
     }
-    setState(() {
-      loading = false;
-    });
   }
 
   @override
@@ -69,6 +69,7 @@ class _UserUpcomingEventsState extends State<UserUpcomingEvents> {
             // Loader
             loading == true
                 ? const LinearProgressIndicator(
+                    color: Color(0xFF29357c),
                     backgroundColor: Colors.white,
                   )
                 : const SizedBox(height: 5),
@@ -95,20 +96,6 @@ class _UserUpcomingEventsState extends State<UserUpcomingEvents> {
                                 shadowColor: Colors.grey,
                                 child: Column(
                                   children: [
-                                    SizedBox(
-                                        height: 200,
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        child: ClipRRect(
-                                          borderRadius: const BorderRadius.only(
-                                              topLeft: Radius.circular(8),
-                                              topRight: Radius.circular(8)),
-                                          child: Image(
-                                            fit: BoxFit.fill,
-                                            image: NetworkImage(
-                                                events[index].images.first),
-                                          ),
-                                        )),
                                     ListTile(
                                       title: Text(
                                         events[index].title!.toUpperCase(),

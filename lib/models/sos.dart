@@ -5,6 +5,7 @@ class SOS {
   DateTime? createdAt;
   List images = [];
   String? uid;
+  String? name;
 
   SOS(
       {this.description,
@@ -12,5 +13,6 @@ class SOS {
       this.createdAt,
       this.did,
       this.images = const [],
-      this.uid});
+      this.uid,
+      this.name});
 }

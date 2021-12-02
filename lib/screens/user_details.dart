@@ -1,6 +1,5 @@
 import 'dart:io';
-
-import 'package:awareness_admin/screens/user/user_home.dart';
+import 'package:awareness_admin/screens/home.dart';
 import 'package:awareness_admin/services/fcm.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,7 +11,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 class UserDetails extends StatefulWidget {
-  const UserDetails({Key? key}) : super(key: key);
+  String userType;
+  UserDetails({Key? key, required this.userType}) : super(key: key);
   @override
   _UserDetailsState createState() => _UserDetailsState();
 }
@@ -301,7 +301,9 @@ class _UserDetailsState extends State<UserDetails> {
                                             _image = null;
                                             nameController.clear();
 
-                                            Get.offAll(() => const UserHome());
+                                            Get.offAll(() => Home(
+                                                  userType: widget.userType,
+                                                ));
                                             setState(() {
                                               loading = false;
                                             });

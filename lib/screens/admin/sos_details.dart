@@ -4,6 +4,7 @@ import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:readmore/readmore.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -127,6 +128,7 @@ class _EventDetailsState extends State<SOSDetails> {
                       ? const Center(
                           child: Text("User just provided location."))
                       : ImageSlideshow(
+                          indicatorColor: const Color(0xFF29357c),
                           autoPlayInterval: 3000,
                           isLoop: true,
                           children: event['images']
@@ -148,7 +150,31 @@ class _EventDetailsState extends State<SOSDetails> {
                   height: 20,
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    children: [
+                      Text('Created at '),
+                      Text(
+                        DateFormat.jm().format(event['createdAt'].toDate()),
+                        style: TextStyle(
+                            color: const Color(0xFF29357c).withOpacity(0.7),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 17),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        DateFormat.yMMMMd().format(event['createdAt'].toDate()),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: ReadMoreText(
                     event['description'],
                     trimLines: 5,
@@ -171,40 +197,54 @@ class _EventDetailsState extends State<SOSDetails> {
                     ? Container(
                         height: 5,
                       )
-                    : Card(
-                        child: ListTile(
-                          minVerticalPadding: 20,
-                          leading: CircleAvatar(
-                            radius: 25,
-                            backgroundImage:
-                                userImg == null ? null : NetworkImage(userImg!),
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width - 30,
+                            child: Card(
+                              color: Colors.grey[50],
+                              shadowColor: Colors.grey[50],
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8))),
+                              child: ListTile(
+                                minVerticalPadding: 20,
+                                leading: CircleAvatar(
+                                  radius: 25,
+                                  backgroundImage: userImg == null
+                                      ? null
+                                      : NetworkImage(userImg!),
+                                ),
+                                title: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Requested by',
+                                      style: TextStyle(
+                                          fontSize: 14, color: Colors.grey),
+                                    ),
+                                    const SizedBox(
+                                      height: 3,
+                                    ),
+                                    Text(
+                                      userName!,
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                    const SizedBox(
+                                      height: 3,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Requested by',
-                                style:
-                                    TextStyle(fontSize: 14, color: Colors.grey),
-                              ),
-                              const SizedBox(
-                                height: 3,
-                              ),
-                              Text(
-                                userName!,
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                              const SizedBox(
-                                height: 3,
-                              ),
-                            ],
-                          ),
-                        ),
+                        ],
                       ),
 
                 // Google Maps
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(12),
                   child: GestureDetector(
                     onTap: () async {
                       String url =
@@ -215,12 +255,15 @@ class _EventDetailsState extends State<SOSDetails> {
                         await launch(url);
                       }
                     },
-                    child: const Text(
-                      "See Location",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Colors.blue,
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        "See Location",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Color(0xFF29357c),
+                        ),
                       ),
                     ),
                   ),

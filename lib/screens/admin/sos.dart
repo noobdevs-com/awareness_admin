@@ -29,6 +29,7 @@ class _SOSScreenState extends State<SOSScreen> {
       sosList.clear();
       for (var i = 0; i < ref.docs.length; i++) {
         SOS sos = SOS(
+          name: ref.docs[i]['name'],
           uid: ref.docs[i]['uid'],
           did: ref.docs[i].id,
           description: ref.docs[i]["description"] ?? "",
@@ -70,10 +71,10 @@ class _SOSScreenState extends State<SOSScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Text(
             'SOS Events',
           ),
-          leadingWidth: 0,
           elevation: 1,
         ),
         body: ListView.builder(
@@ -106,6 +107,7 @@ class _SOSScreenState extends State<SOSScreen> {
                           ),
                         ),
                       ),
+                      title: Text(sosList[index].name!),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -119,7 +121,8 @@ class _SOSScreenState extends State<SOSScreen> {
                                   (sosList[index].createdAt!),
                                 ),
                                 style: TextStyle(
-                                    color: Colors.blue.withOpacity(0.7),
+                                    color: const Color(0xFF29357c)
+                                        .withOpacity(0.7),
                                     fontWeight: FontWeight.w500,
                                     fontSize: 17),
                               ),

@@ -1,15 +1,21 @@
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
+import 'package:awareness_admin/screens/user/user_edit_event.dart';
 import 'package:awareness_admin/services/fcm.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:readmore/readmore.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -45,11 +51,13 @@ class _UserEventDetailsState extends State<UserEventDetails> {
           .get()
           .then((value) {
         var data = value.data()!;
+
         setState(() {
           userName = data['name'];
           userImg = data['profile_img'];
         });
-      }).whenComplete(() {
+      }).whenComplete(() async {
+        await Future.delayed(const Duration(milliseconds: 500));
         setState(() {
           loading = false;
         });
@@ -188,11 +196,50 @@ class _UserEventDetailsState extends State<UserEventDetails> {
     getEvent();
   }
 
+  Future<void> download(String url) async {
+    var status = await Permission.storage.request();
+    if (status.isGranted) {
+      var storagePath = await getExternalStorageDirectory();
+      await FlutterDownloader.enqueue(
+        url: url,
+        savedDir: storagePath!.path,
+        showNotification: true,
+        openFileFromNotification: true,
+      );
+    }
+  }
+
+  final ReceivePort _port = ReceivePort();
+
   @override
   void initState() {
     super.initState();
     getEvent();
     getUser(widget.userId);
+    IsolateNameServer.registerPortWithName(
+        _port.sendPort, 'downloader_send_port');
+    _port.listen((dynamic data) {
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+      int progress = data[2];
+      setState(() {});
+    });
+
+    FlutterDownloader.registerCallback(downloadCallback);
+  }
+
+  @override
+  void dispose() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+    super.dispose();
+    loading = false;
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    final SendPort? send =
+        IsolateNameServer.lookupPortByName('downloader_send_port');
+    send!.send([id, status, progress]);
   }
 
   @override
@@ -202,7 +249,19 @@ class _UserEventDetailsState extends State<UserEventDetails> {
         title: const Text(
           "Event Details",
         ),
-        leadingWidth: 24,
+        actions: [
+          loading
+              ? CupertinoActivityIndicator()
+              : event['status'] == 'Requested'
+                  ? IconButton(
+                      onPressed: () {
+                        Get.to(() => EditEvent(
+                              eventId: widget.eventId,
+                            ));
+                      },
+                      icon: const Icon(Icons.edit))
+                  : const SizedBox(width: 0)
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -227,6 +286,7 @@ class _UserEventDetailsState extends State<UserEventDetails> {
                       height: 280,
                       width: MediaQuery.of(context).size.width,
                       child: ImageSlideshow(
+                        indicatorColor: const Color(0xFF29357c),
                         autoPlayInterval: 3000,
                         isLoop: true,
                         children: event['images']
@@ -255,7 +315,7 @@ class _UserEventDetailsState extends State<UserEventDetails> {
                             child: Text(
                               '${event['title']}'.toUpperCase(),
                               style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 25),
+                                  fontWeight: FontWeight.bold, fontSize: 23),
                             ),
                           ),
                         ],
@@ -270,8 +330,8 @@ class _UserEventDetailsState extends State<UserEventDetails> {
                         children: [
                           Text(
                             event['status'],
-                            style: const TextStyle(
-                              color: Colors.blue,
+                            style: TextStyle(
+                              color: const Color(0xFF29357c).withOpacity(0.7),
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
@@ -306,33 +366,45 @@ class _UserEventDetailsState extends State<UserEventDetails> {
                         ? Container(
                             height: 5,
                           )
-                        : Card(
-                            child: ListTile(
-                              minVerticalPadding: 20,
-                              leading: CircleAvatar(
-                                backgroundImage: NetworkImage(userImg!),
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width - 30,
+                                child: Card(
+                                  shadowColor: Colors.grey[50],
+                                  shape: const RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(8))),
+                                  color: Colors.grey[50],
+                                  child: ListTile(
+                                    minVerticalPadding: 18,
+                                    leading: CircleAvatar(
+                                      backgroundImage: NetworkImage(userImg!),
+                                      radius: 27,
+                                    ),
+                                    title: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Hosted By',
+                                          style: TextStyle(
+                                              fontSize: 14, color: Colors.grey),
+                                        ),
+                                        const SizedBox(
+                                          height: 3,
+                                        ),
+                                        Text(
+                                          userName!,
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
-                              title: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Hosted By',
-                                    style: TextStyle(
-                                        fontSize: 14, color: Colors.grey),
-                                  ),
-                                  const SizedBox(
-                                    height: 3,
-                                  ),
-                                  Text(
-                                    userName!,
-                                    style: const TextStyle(fontSize: 18),
-                                  ),
-                                  const SizedBox(
-                                    height: 3,
-                                  ),
-                                ],
-                              ),
-                            ),
+                            ],
                           ),
                     widget.userId == FirebaseAuth.instance.currentUser!.uid
                         ? Column(
@@ -342,19 +414,14 @@ class _UserEventDetailsState extends State<UserEventDetails> {
                                       children: [
                                         Expanded(
                                           child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 18),
                                             child: ElevatedButton(
                                               onPressed: () async {
                                                 showDialogue();
                                               },
                                               child: const Text(
                                                 'Mark Completed',
-                                              ),
-                                              style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStateProperty
-                                                        .resolveWith((states) =>
-                                                            Colors.blue),
                                               ),
                                             ),
                                           ),
@@ -369,26 +436,31 @@ class _UserEventDetailsState extends State<UserEventDetails> {
                                       children: [
                                         Expanded(
                                           child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 18),
                                             child: ElevatedButton(
                                               onPressed: () async {
-                                                if (await canLaunch(
-                                                    event['report_file'])) {
-                                                  await launch(
-                                                      event['report_file']);
-                                                } else {
-                                                  await launch(
-                                                      event['report_file']);
-                                                }
+                                                Get.defaultDialog(
+                                                    confirmTextColor:
+                                                        Colors.white,
+                                                    cancelTextColor:
+                                                        const Color(0xFF29357c),
+                                                    buttonColor:
+                                                        const Color(0xFF29357c),
+                                                    title: 'Report File',
+                                                    middleText:
+                                                        'Do you want to downlaod the Report File ?',
+                                                    textCancel: 'No',
+                                                    textConfirm: 'Yes',
+                                                    onConfirm: () async {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      await download(
+                                                          event['report_file']);
+                                                    });
                                               },
                                               child: const Text(
                                                 'View Report',
-                                              ),
-                                              style: ButtonStyle(
-                                                backgroundColor:
-                                                    MaterialStateProperty
-                                                        .resolveWith((states) =>
-                                                            Colors.blue),
                                               ),
                                             ),
                                           ),

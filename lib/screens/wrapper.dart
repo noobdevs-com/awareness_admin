@@ -1,7 +1,6 @@
-import 'package:awareness_admin/screens/admin/home.dart';
-
+import 'package:awareness_admin/screens/home.dart';
 import 'package:awareness_admin/screens/login.dart';
-import 'package:awareness_admin/screens/user/user_home.dart';
+
 import 'package:awareness_admin/screens/user_details.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -34,13 +33,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
           .then((value) {
         var data = value.data()!;
         final usertype = data['type'];
-        if (usertype == 'admin') {
-          Get.off(() => const Home());
-        } else if (ref.data()!.isEmpty) {
-          Get.off(() => const UserDetails());
-        } else {
-          Get.off(() => const UserHome());
-        }
+
+        Get.off(() => Home(
+              userType: usertype,
+            ));
       });
     } else {
       Get.off(() => const AuthWrapperScreen());

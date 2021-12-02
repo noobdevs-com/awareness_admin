@@ -1,8 +1,7 @@
 import 'package:awareness_admin/constants/value_constants.dart';
-import 'package:awareness_admin/screens/admin/home.dart';
+import 'package:awareness_admin/screens/home.dart';
 
 import 'package:awareness_admin/screens/otp.dart';
-import 'package:awareness_admin/screens/user/user_home.dart';
 
 import 'package:awareness_admin/screens/user_details.dart';
 import 'package:awareness_admin/services/fcm.dart';
@@ -45,14 +44,12 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
     }
     var jsonResponse = jsonDecode(data.body) as Map<String, dynamic>;
     userType = jsonResponse['type'];
-    if (data.statusCode == 200 && userType == 'admin') {
-      sendOtp(const Home());
-    } else if (data.statusCode == 200 && userType == 'user') {
-      sendOtp(const UserHome());
+    if (data.statusCode == 200) {
+      sendOtp();
     }
   }
 
-  Future<void> sendOtp(Widget Home) async {
+  Future<void> sendOtp() async {
     await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: '+91${phoneNumberController.text}',
         verificationCompleted: (PhoneAuthCredential credential) async {
@@ -66,16 +63,30 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
               'type': 'admin'
             }, SetOptions(merge: true));
 
-            Get.offAll(() => Home);
+            Get.offAll(() => Home(
+                  userType: userType!,
+                ));
           } else if (userType == 'user') {
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .set({
+              'notificationToken': await fcmNotification.updateDeviceToken(),
+              'phone_number': FirebaseAuth.instance.currentUser!.phoneNumber,
+              'type': 'user'
+            }, SetOptions(merge: true));
             final user = await FirebaseFirestore.instance
                 .collection('users')
                 .doc(FirebaseAuth.instance.currentUser!.uid)
                 .get();
 
             user.data()!.isEmpty
-                ? Get.off(() => const UserDetails())
-                : Get.offAll(() => Home);
+                ? Get.off(() => UserDetails(
+                      userType: userType!,
+                    ))
+                : Get.offAll(() => Home(
+                      userType: userType!,
+                    ));
           }
 
           Get.snackbar('OTP Verified Succesfully',
@@ -178,6 +189,7 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
                       controller: phoneNumberController,
                       keyboardType: TextInputType.number,
                       decoration: kTextFieldDecoration.copyWith(
+                          prefixText: '+ 91  ',
                           labelText: 'Phone Number',
                           hintText: 'Enter your phone number',
                           suffixIcon: const Icon(
@@ -200,10 +212,10 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
                                     int.parse(phoneNumberController.text));
                               },
                         icon: loading == true
-                            ? Text('Loading')
+                            ? const Text('Loading')
                             : const Icon(Icons.person),
                         label: loading == true
-                            ? CupertinoActivityIndicator()
+                            ? const CupertinoActivityIndicator()
                             : const Text('Login'),
                         style: ElevatedButton.styleFrom(
                             shape: const RoundedRectangleBorder(

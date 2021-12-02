@@ -213,20 +213,6 @@ class _EventTileState extends State<EventTile> {
                                     userId: events[index].uid!)),
                                 child: Column(
                                   children: [
-                                    SizedBox(
-                                        height: 200,
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        child: ClipRRect(
-                                          borderRadius: const BorderRadius.only(
-                                              topLeft: Radius.circular(8),
-                                              topRight: Radius.circular(8)),
-                                          child: Image(
-                                            fit: BoxFit.fill,
-                                            image: NetworkImage(
-                                                events[index].images.first),
-                                          ),
-                                        )),
                                     ListTile(
                                       trailing: SizedBox(
                                         width: 60,

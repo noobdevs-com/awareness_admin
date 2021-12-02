@@ -1,9 +1,6 @@
 import 'dart:async';
-
-import 'package:awareness_admin/screens/admin/home.dart';
-import 'package:awareness_admin/screens/user/user_home.dart';
+import 'package:awareness_admin/screens/home.dart';
 import 'package:awareness_admin/screens/user_details.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pin_input_text_field/pin_input_text_field.dart';
@@ -66,8 +63,10 @@ class _OTPScreenState extends State<OTPScreen> {
               .get();
 
           user.data()!.isEmpty
-              ? Get.off(() => const UserDetails())
-              : Get.offAll(() => Home);
+              ? Get.off(() => UserDetails(
+                    userType: widget.userType,
+                  ))
+              : Get.offAll(() => Home(userType: widget.userType));
         }
 
         Get.snackbar('OTP Verified Succesfully',
@@ -108,7 +107,9 @@ class _OTPScreenState extends State<OTPScreen> {
         }, SetOptions(merge: true));
 
         Navigator.push(context, MaterialPageRoute(builder: (_) {
-          return Home();
+          return Home(
+            userType: widget.userType,
+          );
         }));
       } else if (widget.userType == 'user') {
         final user = await FirebaseFirestore.instance
@@ -117,8 +118,14 @@ class _OTPScreenState extends State<OTPScreen> {
             .get();
 
         !user.exists
-            ? Get.off(() => const UserDetails())
-            : Get.offAll(() => UserHome);
+            ? Get.off(() => UserDetails(
+                  userType: widget.userType,
+                ))
+            : Navigator.push(context, MaterialPageRoute(builder: (_) {
+                return Home(
+                  userType: widget.userType,
+                );
+              }));
       }
 
       Get.snackbar('OTP Verified Succesfully',
@@ -219,7 +226,8 @@ class _OTPScreenState extends State<OTPScreen> {
                     cursor: Cursor(color: Colors.black),
                     decoration: const BoxLooseDecoration(
                         bgColorBuilder: FixedColorBuilder(Colors.white24),
-                        strokeColorBuilder: FixedColorBuilder(Colors.blue)),
+                        strokeColorBuilder:
+                            FixedColorBuilder(Color(0xFF29357c))),
                     pinLength: 6,
                     controller: otpController,
                     textInputAction: TextInputAction.go,
@@ -252,7 +260,9 @@ class _OTPScreenState extends State<OTPScreen> {
                       style: TextStyle(color: Colors.black, fontSize: 16)),
                   TextSpan(
                       text: ' 00:$startTime ',
-                      style: const TextStyle(color: Colors.blue, fontSize: 16)),
+                      style: TextStyle(
+                          color: const Color(0xFF29357c).withOpacity(0.7),
+                          fontSize: 16)),
                   const TextSpan(
                       text: ' seconds ',
                       style: TextStyle(color: Colors.black, fontSize: 16)),

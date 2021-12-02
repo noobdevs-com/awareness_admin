@@ -1,8 +1,11 @@
+import 'package:awareness_admin/screens/admin/sos.dart';
 import 'package:awareness_admin/screens/user/user_event_tile.dart';
+import 'package:awareness_admin/screens/user/user_sos.dart';
 import 'package:awareness_admin/screens/user/user_upcoming_event.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class UserEventScreen extends StatefulWidget {
@@ -56,6 +59,26 @@ class _UserEventScreenState extends State<UserEventScreen> {
           leadingWidth: 0,
           elevation: 0.5,
           toolbarHeight: 80,
+          actions: [
+            SizedBox(
+              width: 100,
+              child: GestureDetector(
+                onTap: () {
+                  Get.to(() => const UserSOSScreen());
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(
+                      Icons.warning,
+                      color: Colors.red,
+                    ),
+                    Text('SOS')
+                  ],
+                ),
+              ),
+            ),
+          ],
           bottom: TabBar(
             indicatorColor: Colors.white,
             tabs: myTabs,

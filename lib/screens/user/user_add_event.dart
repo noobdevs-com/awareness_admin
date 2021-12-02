@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:awareness_admin/constants/value_constants.dart';
-import 'package:awareness_admin/screens/admin/home.dart';
-import 'package:awareness_admin/screens/user/user_home.dart';
+import 'package:awareness_admin/screens/home.dart';
+
 import 'package:awareness_admin/services/fcm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -89,7 +89,6 @@ class _AddEventState extends State<AddEvent> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getAdminToken();
   }
@@ -100,17 +99,7 @@ class _AddEventState extends State<AddEvent> {
     return Form(
       key: _formKey,
       child: Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.white,
-          leading: GestureDetector(
-            onTap: () => Get.back(),
-            child: const Icon(
-              Icons.arrow_back_ios,
-              color: Colors.black,
-            ),
-          ),
-        ),
+        appBar: AppBar(),
         backgroundColor: const Color(0xfff8f8f8),
         body: SingleChildScrollView(
           child: Column(
@@ -118,6 +107,7 @@ class _AddEventState extends State<AddEvent> {
               // Loader
               loading == true
                   ? const LinearProgressIndicator(
+                      color: Color(0xFF29357c),
                       backgroundColor: Colors.white,
                     )
                   : const SizedBox(height: 5),
@@ -203,9 +193,9 @@ class _AddEventState extends State<AddEvent> {
                               ? const Text(
                                   "Tap to set time",
                                   style: TextStyle(
-                                      fontSize: 19,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.blue),
+                                      color: Color(0xFF29357c)),
                                 )
                               : Row(
                                   children: [
@@ -214,7 +204,7 @@ class _AddEventState extends State<AddEvent> {
                                           .format(selectedDateTime!),
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.black,
+                                        color: Color(0xFF29357c),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
@@ -222,7 +212,7 @@ class _AddEventState extends State<AddEvent> {
                                       DateFormat.jm().format(selectedDateTime!),
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.black,
+                                        color: Color(0xFF29357c),
                                       ),
                                     ),
                                   ],
@@ -297,7 +287,7 @@ class _AddEventState extends State<AddEvent> {
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(
-                              color: Colors.blueAccent, width: 2),
+                              color: Color(0xFF29357c), width: 2),
                         ),
                         onPressed: () {
                           Get.defaultDialog(
@@ -325,7 +315,7 @@ class _AddEventState extends State<AddEvent> {
                         },
                         child: const Text(
                           'Add Image',
-                          style: TextStyle(color: Colors.blueAccent),
+                          style: TextStyle(color: Color(0xFF29357c)),
                         ),
                       ),
                     ),
@@ -338,7 +328,7 @@ class _AddEventState extends State<AddEvent> {
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(
                               side: const BorderSide(
-                                  color: Colors.blueAccent, width: 2),
+                                  color: Color(0xFF29357c), width: 2),
                             ),
                             onPressed: () async {
                               if (files.isEmpty) {
@@ -370,8 +360,7 @@ class _AddEventState extends State<AddEvent> {
                                     .add({
                                   'status': "Requested",
                                   'uid': FirebaseAuth.instance.currentUser!.uid,
-                                  'start_time':
-                                      selectedDateTime!.toIso8601String(),
+                                  'startTime': selectedDateTime!,
                                   'title': titleController.text,
                                   'description': discriptionController.text,
                                   'venue': venueController.text,
@@ -391,13 +380,13 @@ class _AddEventState extends State<AddEvent> {
                                   setState(() {
                                     loading = false;
                                   });
-                                  Get.off(() => Home());
+                                  Navigator.of(context).pop();
                                 });
                               }
                             },
                             child: const Text(
                               'Create Event',
-                              style: TextStyle(color: Colors.blueAccent),
+                              style: TextStyle(color: Color(0xFF29357c)),
                             ),
                           ),
                         ),

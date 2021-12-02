@@ -1,13 +1,17 @@
+import 'dart:isolate';
+import 'dart:ui';
 import 'package:awareness_admin/services/fcm.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
-
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:readmore/readmore.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class EventDetails extends StatefulWidget {
   final String eventId;
@@ -25,6 +29,19 @@ class _EventDetailsState extends State<EventDetails> {
   String? userImg;
   String? notifyId;
   bool loading = false;
+
+  Future<void> download(String url) async {
+    var status = await Permission.storage.request();
+    if (status.isGranted) {
+      var storagePath = await getExternalStorageDirectory();
+      await FlutterDownloader.enqueue(
+        url: url,
+        savedDir: storagePath!.path,
+        showNotification: true,
+        openFileFromNotification: true,
+      );
+    }
+  }
 
   Future getUser(userid) async {
     setState(() {
@@ -90,11 +107,36 @@ class _EventDetailsState extends State<EventDetails> {
     });
   }
 
+  final ReceivePort _port = ReceivePort();
+
   @override
   void initState() {
     super.initState();
     getEvent();
     getUser(widget.userId);
+    IsolateNameServer.registerPortWithName(
+        _port.sendPort, 'downloader_send_port');
+    _port.listen((dynamic data) {
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+      int progress = data[2];
+      setState(() {});
+    });
+
+    FlutterDownloader.registerCallback(downloadCallback);
+  }
+
+  @override
+  void dispose() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+    super.dispose();
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    final SendPort? send =
+        IsolateNameServer.lookupPortByName('downloader_send_port');
+    send!.send([id, status, progress]);
   }
 
   @override
@@ -137,6 +179,7 @@ class _EventDetailsState extends State<EventDetails> {
                       height: 280,
                       width: MediaQuery.of(context).size.width,
                       child: ImageSlideshow(
+                        indicatorColor: const Color(0xFF29357c),
                         autoPlayInterval: 3000,
                         isLoop: true,
                         children: event['images']
@@ -214,7 +257,7 @@ class _EventDetailsState extends State<EventDetails> {
                       child: ListTile(
                         minVerticalPadding: 20,
                         leading: CircleAvatar(
-                          radius: 28,
+                          radius: 27,
                           backgroundImage: NetworkImage(userImg!),
                         ),
                         title: Column(
@@ -231,9 +274,6 @@ class _EventDetailsState extends State<EventDetails> {
                             Text(
                               userName!,
                               style: const TextStyle(fontSize: 18),
-                            ),
-                            const SizedBox(
-                              height: 3,
                             ),
                           ],
                         ),
@@ -273,19 +313,18 @@ class _EventDetailsState extends State<EventDetails> {
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: ElevatedButton(
-                                    onPressed: () async {
-                                      await updateStatus("Approved")
-                                          .whenComplete(() {
-                                        FCMNotification().createNotification(
-                                            notifyId!,
-                                            ' Request Approved',
-                                            'Your event eequest has been approved by Admin');
-                                      });
-                                      await getEvent();
-                                    },
-                                    child: const Text('Approve'),
-                                    style: ElevatedButton.styleFrom(
-                                        primary: const Color(0xFF29357c))),
+                                  onPressed: () async {
+                                    await updateStatus("Approved")
+                                        .whenComplete(() {
+                                      FCMNotification().createNotification(
+                                          notifyId!,
+                                          ' Request Approved',
+                                          'Your event eequest has been approved by Admin');
+                                    });
+                                    await getEvent();
+                                  },
+                                  child: const Text('Approve'),
+                                ),
                               ),
                             ),
                           ])
@@ -297,21 +336,29 @@ class _EventDetailsState extends State<EventDetails> {
                             children: [
                               Expanded(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 18),
                                   child: ElevatedButton(
-                                      onPressed: () async {
-                                        if (await canLaunch(
-                                            event['report_file'])) {
-                                          await launch(event['report_file']);
-                                        } else {
-                                          await launch(event['report_file']);
-                                        }
-                                      },
-                                      child: const Text(
-                                        'View Report',
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                          primary: const Color(0xFF29357c))),
+                                    onPressed: () async {
+                                      Get.defaultDialog(
+                                          confirmTextColor: Colors.white,
+                                          cancelTextColor:
+                                              const Color(0xFF29357c),
+                                          buttonColor: const Color(0xFF29357c),
+                                          title: 'Report File',
+                                          middleText:
+                                              'Do you want to downlaod the Report File ?',
+                                          textCancel: 'No',
+                                          textConfirm: 'Yes',
+                                          onConfirm: () async {
+                                            await download(
+                                                event['report_file']);
+                                          });
+                                    },
+                                    child: const Text(
+                                      'View Report',
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
