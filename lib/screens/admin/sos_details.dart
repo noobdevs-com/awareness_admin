@@ -76,7 +76,8 @@ class _EventDetailsState extends State<SOSDetails> {
           userName = data['name'];
           userImg = data['profile_img'];
         });
-      }).whenComplete(() {
+      }).whenComplete(() async {
+        await Future.delayed(const Duration(milliseconds: 300));
         setState(() {
           loading = false;
         });
@@ -153,7 +154,7 @@ class _EventDetailsState extends State<SOSDetails> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     children: [
-                      Text('Created at '),
+                      const Text('Created at '),
                       Text(
                         DateFormat.jm().format(event['createdAt'].toDate()),
                         style: TextStyle(

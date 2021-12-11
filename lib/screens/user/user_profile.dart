@@ -1,6 +1,7 @@
 import 'package:awareness_admin/screens/login.dart';
 import 'package:awareness_admin/screens/user/user_add_event.dart';
 import 'package:awareness_admin/screens/user_details.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

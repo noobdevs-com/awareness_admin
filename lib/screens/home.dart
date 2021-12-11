@@ -37,66 +37,10 @@ class _HomeState extends State<Home> {
         duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
   }
 
-  Future<void> getEvents() async {
-    setState(() {
-      loading = true;
-    });
-    try {
-      QuerySnapshot ref =
-          await FirebaseFirestore.instance.collection('events').get();
-      events.clear();
-      for (var i = 0; i < ref.docs.length; i++) {
-        Event event = Event(
-          did: ref.docs[i].id,
-          title: ref.docs[i]["title"],
-          status: ref.docs[i]["status"],
-          startTime: DateTime.parse(ref.docs[i]["start_time"]),
-        );
-        events.add(event);
-      }
-    } catch (e) {
-      Get.snackbar("oops...", "Unable to get events");
-    }
-    setState(() {
-      loading = false;
-    });
-  }
-
-  Future<void> filterEvents(String status) async {
-    setState(() {
-      loading = true;
-    });
-    try {
-      QuerySnapshot ref = await FirebaseFirestore.instance
-          .collection('events')
-          .where('status', isEqualTo: status)
-          .get();
-      events.clear();
-
-      setState(() {
-        for (var i = 0; i < ref.docs.length; i++) {
-          Event event = Event(
-            did: ref.docs[i].id,
-            title: ref.docs[i]["status"],
-            status: ref.docs[i]["status"],
-            startTime: DateTime.parse(ref.docs[i]["start_time"]),
-          );
-          events.add(event);
-        }
-      });
-    } catch (e) {
-      Get.snackbar("oops...", "Unable to get events");
-    }
-    setState(() {
-      loading = false;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _selectedIndex);
-    getEvents();
 
     LocalNotification.initialize(context);
     FirebaseMessaging.instance.getInitialMessage().then((m) {
@@ -124,6 +68,9 @@ class _HomeState extends State<Home> {
     return WillPopScope(
       onWillPop: () async {
         Get.defaultDialog(
+            confirmTextColor: Colors.white,
+            cancelTextColor: const Color(0xFF29357c),
+            buttonColor: const Color(0xFF29357c),
             title: 'Exit Application',
             middleText: 'Do you want to exit the app ?',
             textCancel: 'No',
@@ -168,6 +115,9 @@ class _HomeState extends State<Home> {
     return WillPopScope(
       onWillPop: () async {
         Get.defaultDialog(
+            confirmTextColor: Colors.white,
+            cancelTextColor: const Color(0xFF29357c),
+            buttonColor: const Color(0xFF29357c),
             title: 'Exit Application',
             middleText: 'Do you want to exit the app ?',
             textCancel: 'No',
@@ -183,7 +133,7 @@ class _HomeState extends State<Home> {
             onPageChanged: onPageChanged,
             controller: _pageController,
             children: [
-              UserEventScreen(),
+              const UserEventScreen(),
               UserProfile(
                 userType: widget.userType,
               )

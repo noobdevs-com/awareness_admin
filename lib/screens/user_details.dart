@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:awareness_admin/constants/value_constants.dart';
 import 'package:awareness_admin/screens/home.dart';
 import 'package:awareness_admin/services/fcm.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -26,11 +27,45 @@ class _UserDetailsState extends State<UserDetails> {
 
   final nameController = TextEditingController();
 
-  final phoneController = TextEditingController();
+  final emailController = TextEditingController();
 
   XFile? _image;
 
   final _picker = ImagePicker();
+
+  String? userImage;
+
+  Future getUser() async {
+    setState(() {
+      loading = true;
+    });
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get()
+          .then((value) {
+        var data = value.data()!;
+
+        setState(() {
+          nameController.text = data['name'];
+          emailController.text = data['email'];
+          userImage = data['profile_img'];
+        });
+      }).whenComplete(() async {
+        await Future.delayed(const Duration(milliseconds: 500));
+        setState(() {
+          loading = false;
+        });
+      });
+    } catch (e) {
+      print(e);
+      Get.snackbar("oops...", "Unable to get event");
+      setState(() {
+        loading = false;
+      });
+    }
+  }
 
   void _imgFromCamera() async {
     XFile? image =
@@ -56,6 +91,13 @@ class _UserDetailsState extends State<UserDetails> {
       maxWidth: 1080,
       maxHeight: 1080,
     );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getUser();
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -172,11 +214,22 @@ class _UserDetailsState extends State<UserDetails> {
                                           fit: BoxFit.fitWidth,
                                         ),
                                       )
-                                    : const Icon(
-                                        Icons.person,
-                                        size: 80,
-                                        color: Colors.white,
-                                      ),
+                                    : userImage == null
+                                        ? const Icon(
+                                            Icons.person,
+                                            size: 80,
+                                            color: Colors.white,
+                                          )
+                                        : ClipRRect(
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(50)),
+                                            child: Image(
+                                              image: NetworkImage(userImage!),
+                                              height: 110,
+                                              width: 110,
+                                              fit: BoxFit.fitWidth,
+                                            )),
                               ),
                               _image != null
                                   ? const SizedBox(
@@ -207,21 +260,18 @@ class _UserDetailsState extends State<UserDetails> {
                     child: SizedBox(
                       height: 50,
                       child: TextFormField(
-                        keyboardType: TextInputType.name,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter some text';
-                          }
-                          return null;
-                        },
-                        controller: nameController,
-                        decoration: const InputDecoration(
+                          keyboardType: TextInputType.name,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                          controller: nameController,
+                          decoration: kTextFieldDecoration.copyWith(
                             labelText: 'Name',
                             hintText: 'Enter Your Name',
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)))),
-                      ),
+                          )),
                     ),
                   ),
                   const SizedBox(
@@ -232,21 +282,17 @@ class _UserDetailsState extends State<UserDetails> {
                     child: SizedBox(
                       height: 50,
                       child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter some text';
-                          }
-                          return null;
-                        },
-                        controller: phoneController,
-                        decoration: const InputDecoration(
-                            labelText: 'Ph No.',
-                            hintText: 'Enter Your Phone Number',
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)))),
-                      ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter some text';
+                            }
+                            return null;
+                          },
+                          controller: emailController,
+                          decoration: kTextFieldDecoration.copyWith(
+                            labelText: 'Email',
+                            hintText: 'Enter Your Email Address',
+                          )),
                     ),
                   ),
                 ],
@@ -287,12 +333,12 @@ class _UserDetailsState extends State<UserDetails> {
                                       .collection('users')
                                       .doc(uid)
                                       .set({
-                                    'email': FirebaseAuth
-                                        .instance.currentUser!.email,
+                                    'phone': FirebaseAuth
+                                        .instance.currentUser!.phoneNumber,
                                     'profile_img':
                                         await image.ref.getDownloadURL(),
                                     'name': nameController.text,
-                                    'phone': phoneController.text,
+                                    'email': emailController.text,
                                     'uid': uid,
                                     'type': 'user',
                                     'notificationToken': await FCMNotification()

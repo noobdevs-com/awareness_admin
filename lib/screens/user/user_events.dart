@@ -61,7 +61,7 @@ class _UserEventScreenState extends State<UserEventScreen> {
           toolbarHeight: 80,
           actions: [
             SizedBox(
-              width: 100,
+              width: 90,
               child: GestureDetector(
                 onTap: () {
                   Get.to(() => const UserSOSScreen());
@@ -72,6 +72,7 @@ class _UserEventScreenState extends State<UserEventScreen> {
                     Icon(
                       Icons.warning,
                       color: Colors.red,
+                      size: 30,
                     ),
                     Text('SOS')
                   ],

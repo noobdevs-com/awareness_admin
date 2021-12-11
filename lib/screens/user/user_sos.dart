@@ -79,7 +79,7 @@ class _UserSOSScreenState extends State<UserSOSScreen> {
         userName = data['name'];
       });
     }).whenComplete(() async {
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 300));
       setState(() {
         loading = false;
       });
@@ -340,9 +340,10 @@ class _UserSOSScreenState extends State<UserSOSScreen> {
                                         Get.snackbar('SOS Sent',
                                             'SOS request has been sent.');
                                       });
+                                    }).then((value) async {
                                       await Future.delayed(
-                                          const Duration(milliseconds: 1500));
-                                      Get.back();
+                                          const Duration(milliseconds: 2000));
+                                      Get.offAll(() => Home(userType: 'user'));
                                     });
                                   },
                                   child: const Text(

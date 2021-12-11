@@ -24,7 +24,7 @@ class _SOSScreenState extends State<SOSScreen> {
     try {
       QuerySnapshot ref = await FirebaseFirestore.instance
           .collection('sos')
-          .orderBy("createdAt", descending: true)
+          .orderBy('createdAt', descending: true)
           .get();
       sosList.clear();
       for (var i = 0; i < ref.docs.length; i++) {
@@ -65,6 +65,7 @@ class _SOSScreenState extends State<SOSScreen> {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
+      color: const Color(0xFF29357c),
       onRefresh: () async {
         await getSOS();
         return;

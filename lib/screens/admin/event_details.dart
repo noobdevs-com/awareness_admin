@@ -35,11 +35,11 @@ class _EventDetailsState extends State<EventDetails> {
     if (status.isGranted) {
       var storagePath = await getExternalStorageDirectory();
       await FlutterDownloader.enqueue(
-        url: url,
-        savedDir: storagePath!.path,
-        showNotification: true,
-        openFileFromNotification: true,
-      );
+          url: url,
+          savedDir: storagePath!.path,
+          showNotification: true,
+          openFileFromNotification: true,
+          saveInPublicStorage: true);
     }
   }
 
@@ -59,7 +59,8 @@ class _EventDetailsState extends State<EventDetails> {
           userImg = data['profile_img'];
           notifyId = data['notificationToken'];
         });
-      }).whenComplete(() {
+      }).whenComplete(() async {
+        await Future.delayed(const Duration(milliseconds: 300));
         setState(() {
           loading = false;
         });
@@ -114,6 +115,7 @@ class _EventDetailsState extends State<EventDetails> {
     super.initState();
     getEvent();
     getUser(widget.userId);
+
     IsolateNameServer.registerPortWithName(
         _port.sendPort, 'downloader_send_port');
     _port.listen((dynamic data) {
@@ -220,6 +222,25 @@ class _EventDetailsState extends State<EventDetails> {
                       child: Row(
                         children: [
                           Text(
+                            event['venue'],
+                            style: TextStyle(
+                              color: const Color(0xFF29357c).withOpacity(0.7),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const Icon(Icons.location_pin)
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      child: Row(
+                        children: [
+                          Text(
                             event['status'],
                             style: const TextStyle(
                               color: Color(0xFF29357c),
@@ -290,6 +311,8 @@ class _EventDetailsState extends State<EventDetails> {
                                   onPressed: () async {
                                     await updateStatus("Rejected")
                                         .whenComplete(() {
+                                      Get.snackbar('Event Rejected',
+                                          'You have Rejected the event');
                                       FCMNotification().createNotification(
                                           notifyId!,
                                           ' Resquest Rejected',
@@ -316,6 +339,8 @@ class _EventDetailsState extends State<EventDetails> {
                                   onPressed: () async {
                                     await updateStatus("Approved")
                                         .whenComplete(() {
+                                      Get.snackbar('Event Approved',
+                                          'You have Approved the event');
                                       FCMNotification().createNotification(
                                           notifyId!,
                                           ' Request Approved',
@@ -351,6 +376,7 @@ class _EventDetailsState extends State<EventDetails> {
                                           textCancel: 'No',
                                           textConfirm: 'Yes',
                                           onConfirm: () async {
+                                            Navigator.of(context).pop();
                                             await download(
                                                 event['report_file']);
                                           });

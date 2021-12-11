@@ -28,6 +28,7 @@ class _EventTileState extends State<EventTile> {
       QuerySnapshot ref = await FirebaseFirestore.instance
           .collection('events')
           .where('status', isEqualTo: status)
+          .orderBy('createdAt')
           .get();
       events.clear();
 
@@ -39,13 +40,14 @@ class _EventTileState extends State<EventTile> {
             did: ref.docs[i].id,
             title: ref.docs[i]["title"],
             status: ref.docs[i]["status"],
-            startTime: DateTime.parse(ref.docs[i]["start_time"]),
+            startTime: ref.docs[i]["startTime"].toDate(),
           );
           events.add(event);
         }
         loading = false;
       });
     } catch (e) {
+      print(e);
       Get.snackbar("oops...", "Unable to get events");
       setState(() {
         loading = false;
@@ -58,8 +60,10 @@ class _EventTileState extends State<EventTile> {
       loading = true;
     });
     try {
-      QuerySnapshot ref =
-          await FirebaseFirestore.instance.collection('events').get();
+      QuerySnapshot ref = await FirebaseFirestore.instance
+          .collection('events')
+          .orderBy('createdAt')
+          .get();
       events.clear();
       for (var i = 0; i < ref.docs.length; i++) {
         Event event = Event(
@@ -68,9 +72,7 @@ class _EventTileState extends State<EventTile> {
           did: ref.docs[i].id,
           title: ref.docs[i]["title"],
           status: ref.docs[i]["status"],
-          startTime: DateTime.parse(
-            ref.docs[i]["start_time"],
-          ),
+          startTime: ref.docs[i]["startTime"].toDate(),
         );
         events.add(event);
       }
@@ -78,6 +80,7 @@ class _EventTileState extends State<EventTile> {
         loading = false;
       });
     } catch (e) {
+      print(e);
       Get.snackbar("Oops...", "Unable to get events");
       setState(() {
         loading = false;
@@ -107,7 +110,7 @@ class _EventTileState extends State<EventTile> {
             child: Row(
               children: const [
                 Text(
-                  'YOUR EVENTS',
+                  ' EVENTS',
                   style: TextStyle(
                       fontWeight: FontWeight.w700, color: Colors.grey),
                 )
@@ -143,7 +146,17 @@ class _EventTileState extends State<EventTile> {
         ),
       ),
       body: RefreshIndicator(
-        onRefresh: getEvents,
+        color: const Color(0xFF29357c),
+        onRefresh: () {
+          setState(() {
+            if (filterKey == 'All') {
+              getEvents();
+            } else {
+              filterEvents(filterKey);
+            }
+          });
+          return filterKey == 'All' ? getEvents() : filterEvents(filterKey);
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

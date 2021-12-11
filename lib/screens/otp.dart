@@ -128,10 +128,6 @@ class _OTPScreenState extends State<OTPScreen> {
               }));
       }
 
-      Get.snackbar('OTP Verified Succesfully',
-          'Your OTP Has Been Verified Automatically !');
-      //  Check if user exist
-
       setState(() {
         loading = false;
       });

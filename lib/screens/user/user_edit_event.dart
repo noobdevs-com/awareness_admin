@@ -117,6 +117,14 @@ class _EditEventState extends State<EditEvent> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    titleController.clear();
+    descriptionController.clear();
+    venueController.clear();
+  }
+
+  @override
   void initState() {
     super.initState();
     getAdminToken();
@@ -219,7 +227,7 @@ class _EditEventState extends State<EditEvent> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'Set Time  🕐',
+                                  'Update Time  🕐',
                                   style: TextStyle(
                                     fontSize: 19,
                                     fontWeight: FontWeight.bold,
@@ -412,7 +420,7 @@ class _EditEventState extends State<EditEvent> {
                                       await FirebaseFirestore.instance
                                           .collection('events')
                                           .doc(widget.eventId)
-                                          .set({
+                                          .update({
                                         'status': "Requested",
                                         'uid': FirebaseAuth
                                             .instance.currentUser!.uid,
@@ -439,12 +447,13 @@ class _EditEventState extends State<EditEvent> {
                                         setState(() {
                                           loading = false;
                                         });
-                                        Get.back();
+                                        Get.offAll(
+                                            () => Home(userType: 'user'));
                                       });
                                     }
                                   },
                                   child: const Text(
-                                    'Create Event',
+                                    'Update Event',
                                     style: TextStyle(color: Color(0xFF29357c)),
                                   ),
                                 ),

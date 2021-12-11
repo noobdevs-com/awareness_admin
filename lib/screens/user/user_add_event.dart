@@ -1,12 +1,11 @@
 import 'dart:io';
-
 import 'package:awareness_admin/constants/value_constants.dart';
 import 'package:awareness_admin/screens/home.dart';
-
 import 'package:awareness_admin/services/fcm.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:get/get.dart';
@@ -330,64 +329,82 @@ class _AddEventState extends State<AddEvent> {
                               side: const BorderSide(
                                   color: Color(0xFF29357c), width: 2),
                             ),
-                            onPressed: () async {
-                              if (files.isEmpty) {
-                                return Get.snackbar(
-                                    'Oops...', 'Please add atleast one image');
-                              }
-                              if (selectedDateTime == null ||
-                                  selectedDateTime!.isBefore(DateTime.now())) {
-                                return Get.snackbar(
-                                    'Oops...', 'Please set proper time');
-                              }
-                              if (_formKey.currentState!.validate()) {
-                                if (loading == true) return;
+                            onPressed: loading
+                                ? null
+                                : () async {
+                                    if (files.isEmpty) {
+                                      return Get.snackbar('Oops...',
+                                          'Please add atleast one image');
+                                    }
+                                    if (selectedDateTime == null ||
+                                        selectedDateTime!
+                                            .isBefore(DateTime.now())) {
+                                      return Get.snackbar(
+                                          'Oops...', 'Please set proper time');
+                                    }
+                                    if (_formKey.currentState!.validate()) {
+                                      if (loading == true) return;
 
-                                setState(() {
-                                  loading = true;
-                                });
-                                for (var i = 0; i < files.length; i++) {
-                                  TaskSnapshot image = await FirebaseStorage
-                                      .instance
-                                      .ref(
-                                          'eventImages/${UniqueKey().toString() + files[i].name}')
-                                      .putFile(File(files[i].path));
-                                  imagePaths
-                                      .add(await image.ref.getDownloadURL());
-                                }
-                                await FirebaseFirestore.instance
-                                    .collection('events')
-                                    .add({
-                                  'status': "Requested",
-                                  'uid': FirebaseAuth.instance.currentUser!.uid,
-                                  'startTime': selectedDateTime!,
-                                  'title': titleController.text,
-                                  'description': discriptionController.text,
-                                  'venue': venueController.text,
-                                  'images': imagePaths,
-                                  'createdAt': DateTime.now(),
-                                }).whenComplete(() async {
-                                  for (var e in adminToken) {
-                                    await fcmNotification
-                                        .createNotification(e, 'Event Request',
-                                            'New Event Request Incoming !')
-                                        .whenComplete(() {
-                                      Get.snackbar('Event Added',
-                                          'Your Event has been succesfully added!');
-                                    });
-                                  }
+                                      setState(() {
+                                        loading = true;
+                                      });
+                                      for (var i = 0; i < files.length; i++) {
+                                        TaskSnapshot image = await FirebaseStorage
+                                            .instance
+                                            .ref(
+                                                'eventImages/${UniqueKey().toString() + files[i].name}')
+                                            .putFile(File(files[i].path));
+                                        imagePaths.add(
+                                            await image.ref.getDownloadURL());
+                                      }
+                                      await FirebaseFirestore.instance
+                                          .collection('events')
+                                          .add({
+                                        'status': "Requested",
+                                        'uid': FirebaseAuth
+                                            .instance.currentUser!.uid,
+                                        'startTime': selectedDateTime!,
+                                        'title': titleController.text,
+                                        'description':
+                                            discriptionController.text,
+                                        'venue': venueController.text,
+                                        'images': imagePaths,
+                                        'createdAt': DateTime.now(),
+                                      }).whenComplete(() async {
+                                        for (var e in adminToken) {
+                                          await fcmNotification
+                                              .createNotification(
+                                                  e,
+                                                  'Event Request',
+                                                  'New Event Request Incoming !');
+                                          setState(() {
+                                            loading = false;
+                                          });
 
-                                  setState(() {
-                                    loading = false;
-                                  });
-                                  Navigator.of(context).pop();
-                                });
-                              }
-                            },
-                            child: const Text(
-                              'Create Event',
-                              style: TextStyle(color: Color(0xFF29357c)),
-                            ),
+                                          Get.snackbar('Event Added',
+                                              'Your Event has been succesfully added!');
+                                        }
+                                      }).then((value) async {
+                                        await Future.delayed(
+                                          const Duration(seconds: 3),
+                                        );
+                                        Get.offAll(
+                                            () => Home(userType: 'user'));
+                                      });
+                                    }
+                                  },
+                            child: loading
+                                ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Text('Loading  '),
+                                      CupertinoActivityIndicator()
+                                    ],
+                                  )
+                                : const Text(
+                                    'Create Event',
+                                    style: TextStyle(color: Color(0xFF29357c)),
+                                  ),
                           ),
                         ),
                       ],

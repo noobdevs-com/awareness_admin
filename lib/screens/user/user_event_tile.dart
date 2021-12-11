@@ -29,6 +29,7 @@ class _UserEventTileState extends State<UserEventTile> {
           .collection('events')
           .where('status', isEqualTo: status)
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .orderBy('createdAt')
           .get();
       events.clear();
 
@@ -44,6 +45,7 @@ class _UserEventTileState extends State<UserEventTile> {
         }
       });
     } catch (e) {
+      print(e);
       Get.snackbar("oops...", "Unable to get events");
     }
     setState(() {
@@ -59,6 +61,7 @@ class _UserEventTileState extends State<UserEventTile> {
       QuerySnapshot ref = await FirebaseFirestore.instance
           .collection('events')
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .orderBy('createdAt')
           .get();
       events.clear();
       for (var i = 0; i < ref.docs.length; i++) {
@@ -99,7 +102,17 @@ class _UserEventTileState extends State<UserEventTile> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: getEvents,
+        color: const Color(0xFF29357c),
+        onRefresh: () {
+          setState(() {
+            if (filterKey == 'All') {
+              getEvents();
+            } else {
+              filterEvents(filterKey);
+            }
+          });
+          return filterKey == 'All' ? getEvents() : filterEvents(filterKey);
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

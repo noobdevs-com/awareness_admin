@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 
 class UserUpcomingEvents extends StatefulWidget {
   const UserUpcomingEvents({Key? key}) : super(key: key);
@@ -25,6 +26,7 @@ class _UserUpcomingEventsState extends State<UserUpcomingEvents> {
       QuerySnapshot ref = await FirebaseFirestore.instance
           .collection('events')
           .where('status', isEqualTo: 'Approved')
+          .orderBy('startTime')
           .get();
       events.clear();
       for (var i = 0; i < ref.docs.length; i++) {
@@ -43,7 +45,8 @@ class _UserUpcomingEventsState extends State<UserUpcomingEvents> {
         loading = false;
       });
     } catch (e) {
-      Get.snackbar("Oops...", "Unable to get events");
+      print(e);
+      Get.snackbar("Oops...", "Unable to get events, $e");
       setState(() {
         loading = false;
       });
@@ -57,9 +60,16 @@ class _UserUpcomingEventsState extends State<UserUpcomingEvents> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    loading = false;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
+        color: const Color(0xFF29357c),
         onRefresh: getEvents,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,6 +107,10 @@ class _UserUpcomingEventsState extends State<UserUpcomingEvents> {
                                 child: Column(
                                   children: [
                                     ListTile(
+                                      trailing: events[index].startTime!.day ==
+                                              DateTime.now().day
+                                          ? Lottie.asset('assets/new.json')
+                                          : null,
                                       title: Text(
                                         events[index].title!.toUpperCase(),
                                         style: const TextStyle(

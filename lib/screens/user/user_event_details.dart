@@ -251,7 +251,7 @@ class _UserEventDetailsState extends State<UserEventDetails> {
         ),
         actions: [
           loading
-              ? CupertinoActivityIndicator()
+              ? const CupertinoActivityIndicator()
               : event['status'] == 'Requested'
                   ? IconButton(
                       onPressed: () {
@@ -276,7 +276,7 @@ class _UserEventDetailsState extends State<UserEventDetails> {
                 ),
               )
             : SingleChildScrollView(
-                physics: const BouncingScrollPhysics(
+                physics: const PageScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics(),
                 ),
                 child: Column(
@@ -318,6 +318,25 @@ class _UserEventDetailsState extends State<UserEventDetails> {
                                   fontWeight: FontWeight.bold, fontSize: 23),
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      child: Row(
+                        children: [
+                          Text(
+                            event['venue'],
+                            style: TextStyle(
+                              color: const Color(0xFF29357c).withOpacity(0.7),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const Icon(Icons.location_pin)
                         ],
                       ),
                     ),

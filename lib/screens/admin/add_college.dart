@@ -142,6 +142,7 @@ class _AddCollegeState extends State<AddCollege> {
                   child: SizedBox(
                     height: 45,
                     child: TextFormField(
+                      keyboardType: TextInputType.phone,
                       validator: (value) {
                         if (value == '' || value == null) {
                           return 'Please enter user Phone Number';
@@ -151,7 +152,7 @@ class _AddCollegeState extends State<AddCollege> {
                       },
                       controller: phNoController,
                       decoration: kTextFieldDecoration.copyWith(
-                          labelText: 'Email',
+                          labelText: 'Phone Number',
                           hintText: 'Enter User Phone Number'),
                     ),
                   ),

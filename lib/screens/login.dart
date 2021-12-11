@@ -137,95 +137,97 @@ class _AuthWrapperScreenState extends State<AuthWrapperScreen> {
             fit: BoxFit.cover),
       ),
       child: SafeArea(
-        child: Column(
-          children: [
-            loading == true
-                ? const SizedBox(
-                    height: 5,
-                    child: LinearProgressIndicator(
-                      backgroundColor: Colors.white,
-                      color: Color(0xFF29357c),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              loading == true
+                  ? const SizedBox(
+                      height: 5,
+                      child: LinearProgressIndicator(
+                        backgroundColor: Colors.white,
+                        color: Color(0xFF29357c),
+                      ),
+                    )
+                  : const SizedBox(
+                      height: 5,
                     ),
-                  )
-                : const SizedBox(
-                    height: 5,
+              const SizedBox(
+                height: 30,
+              ),
+              Column(
+                children: const [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: AssetImage('assets/christ.png'),
+                    backgroundColor: Colors.white,
                   ),
-            const SizedBox(
-              height: 30,
-            ),
-            Column(
-              children: const [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: AssetImage('assets/christ.png'),
-                  backgroundColor: Colors.white,
-                ),
-                SizedBox(height: 15),
-                Text(
-                  'Join Us To Start Saving',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
-                ),
-                SizedBox(height: 7),
-                Text(
-                  "Lets Create Awareness Together",
-                  style: TextStyle(
+                  SizedBox(height: 15),
+                  Text(
+                    'Join Us To Start Saving',
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: Colors.grey),
-                )
-              ],
-            ),
-            const SizedBox(
-              height: 130,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Column(
-                children: [
-                  TextFormField(
-                      controller: phoneNumberController,
-                      keyboardType: TextInputType.number,
-                      decoration: kTextFieldDecoration.copyWith(
-                          prefixText: '+ 91  ',
-                          labelText: 'Phone Number',
-                          hintText: 'Enter your phone number',
-                          suffixIcon: const Icon(
-                            Icons.phone,
-                            color: Color(0xFF29357c),
-                          ))),
-                  const SizedBox(
-                    height: 35,
+                      fontSize: 20,
+                    ),
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: ElevatedButton.icon(
-                        onPressed: loading
-                            ? null
-                            : () {
-                                setState(() {
-                                  loading = true;
-                                });
-                                verifyUser(
-                                    int.parse(phoneNumberController.text));
-                              },
-                        icon: loading == true
-                            ? const Text('Loading')
-                            : const Icon(Icons.person),
-                        label: loading == true
-                            ? const CupertinoActivityIndicator()
-                            : const Text('Login'),
-                        style: ElevatedButton.styleFrom(
-                            shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))))),
-                  ),
+                  SizedBox(height: 7),
+                  Text(
+                    "Lets Create Awareness Together",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.grey),
+                  )
                 ],
               ),
-            )
-          ],
+              const SizedBox(
+                height: 130,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Column(
+                  children: [
+                    TextFormField(
+                        controller: phoneNumberController,
+                        keyboardType: TextInputType.number,
+                        decoration: kTextFieldDecoration.copyWith(
+                            prefixText: '+ 91  ',
+                            labelText: 'Phone Number',
+                            hintText: 'Enter your phone number',
+                            suffixIcon: const Icon(
+                              Icons.phone,
+                              color: Color(0xFF29357c),
+                            ))),
+                    const SizedBox(
+                      height: 35,
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: ElevatedButton.icon(
+                          onPressed: loading
+                              ? null
+                              : () {
+                                  setState(() {
+                                    loading = true;
+                                  });
+                                  verifyUser(
+                                      int.parse(phoneNumberController.text));
+                                },
+                          icon: loading == true
+                              ? const Text('Loading')
+                              : const Icon(Icons.person),
+                          label: loading == true
+                              ? const CupertinoActivityIndicator()
+                              : const Text('Login'),
+                          style: ElevatedButton.styleFrom(
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))))),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     ));
